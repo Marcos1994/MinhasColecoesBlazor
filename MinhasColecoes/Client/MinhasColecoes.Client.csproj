@@ -2024,4 +2024,8 @@
     <TypeScriptCompile Include="wwwroot\node_modules\%40popperjs\core\lib\utils\within.d.ts" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ColecoesAPI\" />
+  </ItemGroup>
+
 </Project>
