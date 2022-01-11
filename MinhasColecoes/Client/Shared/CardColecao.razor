@@ -1,0 +1,56 @@
+﻿@using MinhasColecoes.Shared.ViewModels;
+
+<div class="col">
+	<div class="card h-100 shadow rounded-3">
+		<div class="card-img-top position-relative" style="height: 150px;">
+			@if (!colecao.Publica)
+			{
+				<a class="position-absolute end-0 bottom-0 p-2 text-secondary bg-white rounded-top">
+					<i class="bi-eye-slash-fill" title="Coleção particular"
+					   style="font-size: 20px; line-height: 20px;"></i>
+				</a>
+			}
+			else if (colecao.IdDono == 1)
+			{
+				<a class="position-absolute end-0 bottom-0 p-2 text-secondary bg-white rounded-top">
+					<i class="bi-flag-fill" title="Dono da coleção"
+					   style="font-size: 20px; line-height: 20px;"></i>
+				</a>
+			}
+			else if (colecao.UsuarioParticipa)
+			{
+				<a class="position-absolute end-0 bottom-0 p-2 text-secondary bg-white rounded-top">
+					<i class="bi-person-circle" title="Membro da coleção"
+					   style="font-size: 20px; line-height: 20px;"></i>
+				</a>
+			}
+			<a href="#" class="card-img-top bg-secondary" style="height: 150px;">
+				<img src="/img/fotos/Colecao/@(colecao.Foto).jpg" alt="..."
+					 class="mx-auto d-block" style="max-width: 100%; max-height: 100%;">
+			</a>
+		</div>
+		<div class="card-header">
+			<div class="row">
+				<div class="col-6">
+					<i class="bi-diagram-3-fill" title="Quantidade de subcoleções"
+					   style="font-size: 20px; line-height: 20px;"></i>
+					@(colecao.QuantidadeSubcolecoes)
+				</div>
+				<div class="col-6">
+					<i class="bi-people-fill" title="Quantidade de Membros"
+					   style="font-size: 20px; line-height: 20px;"></i>
+					@(colecao.QuantidadeMembros)
+				</div>
+			</div>
+		</div>
+		<div class="card-body">
+			<h6 class="card-title truncate-2l text-center">@(colecao.Nome)</h6>
+			<p class="card-text truncate-2l">@(colecao.Descricao)</p>
+		</div>
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public ColecaoBasicVM colecao { get; set; }
+}
