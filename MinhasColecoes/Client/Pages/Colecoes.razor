@@ -1,0 +1,201 @@
+﻿@page "/colecoes"
+@using MinhasColecoes.Shared.ViewModels;
+
+<div class="row">
+	<div class="col-12 col-md-6 col-lg-5 col-xl-4 mb-2 mb-md-0">
+		<div class="d-flex">
+			<form method="GET" class="input-group mb-3">
+				<button class="btn btn-primary" type="submit" id="button-busca">Buscar</button>
+				<input type="text" class="form-control form-control-sm" placeholder="Nome da coleção" aria-label="Nome da coleção" aria-describedby="button-busca" name="nome">
+				<button class="btn btn-outline-secondary btn-sm" type="submit" asp-area="" asp-controller="Colecao" asp-action="Cadastro">Cadastrar</button>
+			</form>
+		</div>
+	</div>
+	<div class="col-12 col-md-6 col-lg-7 col-xl-8 mb-3 mb-md-0">
+		<div class="d-flex flex-row-reverse justify-content-center justify-content-lg-start">
+			<form class="d-inline-block">
+				<select class="form-select form-select-sm">
+					<option>25 por página</option>
+					<option>50 por página</option>
+					<option>100 por página</option>
+					<option>200 por página</option>
+				</select>
+			</form>
+			<nav class="d-inline-block me-3">
+				<ul class="pagination pagination-sm">
+					<li class="page-item">
+						<a class="page-link" href="#" aria-label="Previous">
+							<span aria-hidden="true">&laquo;</span>
+						</a>
+					</li>
+					<li class="page-item"><a class="page-link" href="#">1</a></li>
+					<li class="page-item"><a class="page-link" href="#">2</a></li>
+					<li class="page-item"><a class="page-link" href="#">3</a></li>
+					<li class="page-item"><a class="page-link" href="#">4</a></li>
+					<li class="page-item"><a class="page-link" href="#">5</a></li>
+					<li class="page-item">
+						<a class="page-link" href="#" aria-label="Next">
+							<span aria-hidden="true">&raquo;</span>
+						</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+
+@if (colecoes == null)
+{
+	<h3>Carregando...</h3>
+}
+else
+{
+	<div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 row-cols-xxl-6 g-3">
+		@foreach (ColecaoBasicVM c in colecoes)
+		{
+			@*<CardColecao Colecao="c" />*@
+			<div class="col">
+				<div class="card h-100 shadow rounded-3">
+					<div class="card-img-top position-relative" style="height: 150px;">
+						@if (!c.Publica)
+						{
+							<a class="position-absolute end-0 bottom-0 p-2 text-secondary bg-white rounded-top">
+								<i class="bi-eye-slash-fill" title="Coleção particular"
+								   style="font-size: 20px; line-height: 20px;"></i>
+							</a>
+						}
+						else if (c.IdDono == 1)
+						{
+							<a class="position-absolute end-0 bottom-0 p-2 text-secondary bg-white rounded-top">
+								<i class="bi-flag-fill" title="Dono da coleção"
+								   style="font-size: 20px; line-height: 20px;"></i>
+							</a>
+						}
+						else if (c.UsuarioParticipa)
+						{
+							<a class="position-absolute end-0 bottom-0 p-2 text-secondary bg-white rounded-top">
+								<i class="bi-person-circle" title="Membro da coleção"
+								   style="font-size: 20px; line-height: 20px;"></i>
+							</a>
+						}
+						<a href="#" class="card-img-top bg-secondary" style="height: 150px;">
+							<img src="~/img/fotos/Colecao/@(c.Foto).jpg" alt="..."
+								 class="mx-auto d-block" style="max-width: 100%; max-height: 100%;">
+						</a>
+					</div>
+					<div class="card-header">
+						<div class="row">
+							<div class="col-6">
+								<i class="bi-diagram-3-fill" title="Quantidade de subcoleções"
+								   style="font-size: 20px; line-height: 20px;"></i>
+								@(c.QuantidadeSubcolecoes)
+							</div>
+							<div class="col-6">
+								<i class="bi-people-fill" title="Quantidade de Membros"
+								   style="font-size: 20px; line-height: 20px;"></i>
+								@(c.QuantidadeMembros)
+							</div>
+						</div>
+					</div>
+					<div class="card-body">
+						<h6 class="card-title truncate-2l text-center">@(c.Nome)</h6>
+						<p class="card-text truncate-2l">@(c.Descricao)</p>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+}
+
+<div class="row mt-3">
+	<div class="col-12 d-flex flex-row-reverse justify-content-center">
+		<nav class="d-inline-block">
+			<ul class="pagination">
+				<li class="page-item">
+					<a class="page-link" href="#" aria-label="Previous">
+						<span aria-hidden="true">&laquo;</span>
+					</a>
+				</li>
+
+				<li class="page-item"><a class="page-link" href="#">1</a></li>
+				<li class="page-item"><a class="page-link" href="#">2</a></li>
+				<li class="page-item"><a class="page-link" href="#">3</a></li>
+				<li class="page-item"><a class="page-link" href="#">4</a></li>
+				<li class="page-item"><a class="page-link" href="#">5</a></li>
+
+				<li class="page-item">
+					<a class="page-link" href="#" aria-label="Next">
+						<span aria-hidden="true">&raquo;</span>
+					</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
+</div>
+
+@code {
+	private List<ColecaoBasicVM> colecoes;
+
+	async Task LoadColecoes()
+	{
+		await Task.Delay(3000);
+		colecoes = new List<ColecaoBasicVM>();
+		colecoes.Add(new ColecaoBasicVM()
+		{
+			Id = 1,
+			Nome = "Alfa",
+			Descricao = "Colecao de teste Alfa",
+			IdDono = 1,
+			Publica = true,
+			QuantidadeMembros = 5,
+			QuantidadeSubcolecoes = 2,
+			UsuarioParticipa = true
+		});
+		colecoes.Add(new ColecaoBasicVM()
+		{
+			Id = 2,
+			Nome = "Beta",
+			Descricao = "Colecao de teste Beta",
+			IdDono = 1,
+			Publica = false,
+			QuantidadeMembros = 1,
+			QuantidadeSubcolecoes = 5,
+			UsuarioParticipa = true
+		});
+		colecoes.Add(new ColecaoBasicVM()
+		{
+			Id = 3,
+			Nome = "Gama",
+			Descricao = "Colecao de teste Gama",
+			IdDono = 2,
+			Publica = true,
+			QuantidadeMembros = 3,
+			QuantidadeSubcolecoes = 7,
+			UsuarioParticipa = false
+		});
+		colecoes.Add(new ColecaoBasicVM()
+		{
+			Id = 4,
+			Nome = "Delta",
+			Descricao = "Colecao de teste Delta",
+			IdDono = 2,
+			Publica = true,
+			QuantidadeMembros = 5,
+			QuantidadeSubcolecoes = 9,
+			UsuarioParticipa = true
+		});
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		base.OnInitializedAsync();
+		await LoadColecoes();
+	}
+
+	private int currentCount = 0;
+
+	private void IncrementCount()
+	{
+		currentCount++;
+	}
+}
