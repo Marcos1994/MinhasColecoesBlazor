@@ -1,0 +1,104 @@
+﻿@using MinhasColecoes.Shared.ViewModels;
+@using System.Net;
+@inject HttpClient client;
+
+<div class="row">
+	<div class="col-12 col-md-6 col-lg-5 col-xl-4 mb-2 mb-md-0">
+		<div class="d-flex">
+			<div class="input-group mb-3">
+				<button class="btn btn-primary" id="button-busca">Buscar</button>
+				<input type="text" class="form-control form-control-sm" placeholder="Nome da coleção" aria-label="Nome da coleção" aria-describedby="button-busca" name="nome">
+				<button class="btn btn-outline-secondary btn-sm">Cadastrar</button>
+			</div>
+		</div>
+	</div>
+	<div class="col-12 col-md-6 col-lg-7 col-xl-8 mb-3 mb-md-0">
+		<div class="d-flex flex-row-reverse justify-content-center justify-content-lg-start">
+			<form class="d-inline-block">
+				<select class="form-select form-select-sm">
+					<option>25 por página</option>
+					<option>50 por página</option>
+					<option>100 por página</option>
+					<option>200 por página</option>
+				</select>
+			</form>
+			@if (TotalPaginas > 1)
+			{
+				<nav class="d-inline-block me-3">
+					<Paginacao TotalPaginas="@TotalPaginas" ParinaAtual="@PaginaAtual" />
+				</nav>
+			}
+		</div>
+	</div>
+</div>
+
+@if (colecoes == null)
+{
+	if (status == null)
+	{
+		<h3>Carregando...</h3>
+	}
+	else
+	{
+		@(status.ToString())
+	}
+}
+else
+{
+	<div class="row row-cols-2 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-6 g-3">
+		@foreach (ColecaoBasicVM c in colecoes)
+		{
+			<CardColecao colecao="c" />
+		}
+	</div>
+}
+
+@if (TotalPaginas > 1)
+{
+	<div class="row mt-3">
+		<div class="col-12 d-flex flex-row-reverse justify-content-center">
+			<nav class="d-inline-block">
+				<Paginacao TotalPaginas="@TotalPaginas" ParinaAtual="@PaginaAtual" />
+			</nav>
+		</div>
+	</div>
+}
+
+@code {
+	[Parameter]
+	public int? IdColecaoPrincipal { get; set; } = null;
+
+	private List<ColecaoBasicVM> colecoes;
+	private HttpStatusCode? status;
+	private int TotalPaginas = 0;
+	private int PaginaAtual = 0;
+
+	async Task LoadColecoes()
+	{
+		try
+		{
+			HttpResponseMessage response = (IdColecaoPrincipal == null)
+				? await client.GetAsync("Colecoes")
+				: await client.GetAsync($"/Colecoes/{IdColecaoPrincipal}/Subcolecoes");
+
+			status = response.StatusCode;
+			if (response.IsSuccessStatusCode)
+				colecoes = await response.Content.ReadFromJsonAsync<List<ColecaoBasicVM>>();
+		}
+		catch (Exception ex)
+		{
+			status = HttpStatusCode.InternalServerError;
+		}
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadColecoes();
+	}
+
+	protected override async Task OnParametersSetAsync()
+	{
+		colecoes = null;
+		await LoadColecoes();
+	}
+}

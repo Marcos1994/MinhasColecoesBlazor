@@ -1,0 +1,43 @@
+﻿@page "/colecao/{Id:int}"
+@using MinhasColecoes.Shared.ViewModels;
+@using System.Net;
+@inject HttpClient client;
+
+<h3>Coleção @colecao.Nome</h3>
+<p>@colecao.Descricao</p>
+<SearchAndCreateColecao IdColecaoPrincipal="@Id" />
+
+@code {
+	[Parameter]
+	public int Id { get; set; }
+	private HttpStatusCode? status;
+
+	private ColecaoVM colecao = new ColecaoVM();
+
+	async Task LoadColecao()
+	{
+		try
+		{
+			HttpResponseMessage response = await client.GetAsync($"Colecoes/{Id}");
+
+			status = response.StatusCode;
+			if (response.IsSuccessStatusCode)
+				colecao = await response.Content.ReadFromJsonAsync<ColecaoVM>();
+		}
+		catch (Exception ex)
+		{
+			status = HttpStatusCode.InternalServerError;
+		}
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadColecao();
+	}
+
+	protected override async Task OnParametersSetAsync()
+	{
+		colecao = new ColecaoVM();
+		await LoadColecao();
+	}
+}
