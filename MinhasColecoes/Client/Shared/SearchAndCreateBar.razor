@@ -1,0 +1,32 @@
+﻿
+<div class="d-flex">
+	<div class="input-group mb-3">
+		<button class="btn btn-primary" @onclick="Buscar">Buscar</button>
+		<input type="text" class="form-control form-control-sm" placeholder="@Mensagem" aria-label="@Mensagem" aria-describedby="button-busca" @bind="parametro">
+		<button class="btn btn-outline-secondary btn-sm" @onclick="Cadastrar">Cadastrar</button>
+
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public string Mensagem { get; set; }
+
+	[Parameter]
+	public EventCallback<string> OnClickBuscarCallback { get; set; }
+
+	[Parameter]
+	public EventCallback<string> OnClickCadastrarCallback { get; set; }
+
+	private string parametro = "";
+
+	protected async Task Buscar()
+	{
+		await OnClickBuscarCallback.InvokeAsync(parametro);
+	}
+
+	protected async Task Cadastrar()
+	{
+		await OnClickCadastrarCallback.InvokeAsync(parametro);
+	}
+}

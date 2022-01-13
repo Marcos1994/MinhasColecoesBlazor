@@ -4,13 +4,7 @@
 
 <div class="row">
 	<div class="col-12 col-md-6 col-lg-5 col-xl-4 mb-2 mb-md-0">
-		<div class="d-flex">
-			<div class="input-group mb-3">
-				<button class="btn btn-primary" id="button-busca">Buscar</button>
-				<input type="text" class="form-control form-control-sm" placeholder="Nome da coleção" aria-label="Nome da coleção" aria-describedby="button-busca" name="nome">
-				<button class="btn btn-outline-secondary btn-sm">Cadastrar</button>
-			</div>
-		</div>
+		<SearchAndCreateBar Mensagem="mensagemParametro" OnClickBuscarCallback="BuscarColecoes" OnClickCadastrarCallback="Cadastrar"/>
 	</div>
 	<div class="col-12 col-md-6 col-lg-7 col-xl-8 mb-3 mb-md-0">
 		<div class="d-flex flex-row-reverse justify-content-center justify-content-lg-start">
@@ -72,14 +66,32 @@ else
 	private HttpStatusCode? status;
 	private int TotalPaginas = 0;
 	private int PaginaAtual = 0;
+	private string mensagemParametro = "Nome da Coleção";
+	private string nomeColecao = "";
 
-	async Task LoadColecoes()
+	protected override async Task OnInitializedAsync()
 	{
+		await BuscarColecoes();
+	}
+
+	protected override async Task OnParametersSetAsync()
+	{
+		colecoes = null;
+		await BuscarColecoes();
+	}
+
+	async Task BuscarColecoes(string nome = "")
+	{
+		nomeColecao = nome;
+		colecoes = null;
 		try
 		{
+			string parametro = (nomeColecao.Length > 0)
+				? $"?nome={nomeColecao}"
+				: "";
 			HttpResponseMessage response = (IdColecaoPrincipal == null)
-				? await client.GetAsync("Colecoes")
-				: await client.GetAsync($"/Colecoes/{IdColecaoPrincipal}/Subcolecoes");
+				? await client.GetAsync($"Colecoes{parametro}")
+				: await client.GetAsync($"/Colecoes/{IdColecaoPrincipal}/Subcolecoes{parametro}");
 
 			status = response.StatusCode;
 			if (response.IsSuccessStatusCode)
@@ -91,14 +103,8 @@ else
 		}
 	}
 
-	protected override async Task OnInitializedAsync()
+	protected async Task Cadastrar(string nome)
 	{
-		await LoadColecoes();
-	}
 
-	protected override async Task OnParametersSetAsync()
-	{
-		colecoes = null;
-		await LoadColecoes();
 	}
 }
