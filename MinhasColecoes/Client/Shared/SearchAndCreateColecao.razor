@@ -1,25 +1,25 @@
 ﻿@using MinhasColecoes.Shared.ViewModels;
-@using System.Net;
 @inject HttpClient client;
 
 <div class="row">
 	<div class="col-12 col-md-6 col-lg-5 col-xl-4 mb-2 mb-md-0">
-		<SearchAndCreateBar Mensagem="mensagemParametro" OnClickBuscarCallback="BuscarColecoes" OnClickCadastrarCallback="Cadastrar"/>
+		<SearchAndCreateBar Mensagem="mensagemParametro" OnClickBuscarCallback="BuscarColecoes" OnClickCadastrarCallback="Cadastrar" />
 	</div>
 	<div class="col-12 col-md-6 col-lg-7 col-xl-8 mb-3 mb-md-0">
 		<div class="d-flex flex-row-reverse justify-content-center justify-content-lg-start">
 			<form class="d-inline-block">
-				<select class="form-select form-select-sm">
-					<option>25 por página</option>
-					<option>50 por página</option>
-					<option>100 por página</option>
-					<option>200 por página</option>
+				<select class="form-select form-select-sm" @bind="QuantidadePorPagina">
+					<option value="25">25 por página</option>
+					<option value="50">50 por página</option>
+					<option value="100">100 por página</option>
+					<option value="200">200 por página</option>
+					<option value="300">300 por página</option>
 				</select>
 			</form>
-			@if (TotalPaginas > 1)
+			@if (totalPaginas > 1)
 			{
 				<nav class="d-inline-block me-3">
-					<Paginacao TotalPaginas="@TotalPaginas" ParinaAtual="@PaginaAtual" />
+					<Paginacao TotalPaginas="totalPaginas" ParinaAtual="paginaAtual" />
 				</nav>
 			}
 		</div>
@@ -47,12 +47,12 @@ else
 	</div>
 }
 
-@if (TotalPaginas > 1)
+@if (totalPaginas > 1)
 {
 	<div class="row mt-3">
 		<div class="col-12 d-flex flex-row-reverse justify-content-center">
 			<nav class="d-inline-block">
-				<Paginacao TotalPaginas="@TotalPaginas" ParinaAtual="@PaginaAtual" />
+				<Paginacao TotalPaginas="totalPaginas" ParinaAtual="paginaAtual" />
 			</nav>
 		</div>
 	</div>
@@ -62,17 +62,14 @@ else
 	[Parameter]
 	public int? IdColecaoPrincipal { get; set; } = null;
 
+	public int QuantidadePorPagina { get; set; } = 25;
+
 	private List<ColecaoBasicVM> colecoes;
 	private HttpStatusCode? status;
-	private int TotalPaginas = 0;
-	private int PaginaAtual = 0;
+	private int totalPaginas = 0;
+	private int paginaAtual = 0;
 	private string mensagemParametro = "Nome da Coleção";
 	private string nomeColecao = "";
-
-	protected override async Task OnInitializedAsync()
-	{
-		await BuscarColecoes();
-	}
 
 	protected override async Task OnParametersSetAsync()
 	{
@@ -80,7 +77,7 @@ else
 		await BuscarColecoes();
 	}
 
-	async Task BuscarColecoes(string nome = "")
+	private async Task BuscarColecoes(string nome = "")
 	{
 		nomeColecao = nome;
 		colecoes = null;
@@ -90,8 +87,8 @@ else
 				? $"?nome={nomeColecao}"
 				: "";
 			HttpResponseMessage response = (IdColecaoPrincipal == null)
-				? await client.GetAsync($"Colecoes{parametro}")
-				: await client.GetAsync($"/Colecoes/{IdColecaoPrincipal}/Subcolecoes{parametro}");
+			? await client.GetAsync($"Colecoes{parametro}")
+			: await client.GetAsync($"/Colecoes/{IdColecaoPrincipal}/Subcolecoes{parametro}");
 
 			status = response.StatusCode;
 			if (response.IsSuccessStatusCode)
@@ -103,7 +100,7 @@ else
 		}
 	}
 
-	protected async Task Cadastrar(string nome)
+	private async Task Cadastrar(string nome)
 	{
 
 	}

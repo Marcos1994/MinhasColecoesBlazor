@@ -1,0 +1,49 @@
+﻿@page "/login"
+@using MinhasColecoes.Shared.InputModels;
+@using MinhasColecoes.Shared.ViewModels;
+@inject HttpClient client
+@inject NavigationManager navManager
+
+<div class="login-form">
+	<h1 class="title-gradient">Login</h1>
+	<div class="container">
+		<div class="text-danger"></div>
+		<form>
+			<div class="form-floating mb-3">
+				<input class="form-control" aria-describedby="emailHelp" @bind="usuarioIM.Login" autofocus />
+				<label>E-mail: </label>
+			</div>
+			<div class="form-floating mb-3">
+				<input class="form-control" type="password" @bind="usuarioIM.Senha" />
+				<label>Senha: </label>
+			</div>
+			<div class="text-center">
+				<input class="btn btn-lg btn-primary" @onclick="Logar" value="Confirmar" />
+			</div>
+		</form>
+	</div>
+</div>
+
+@code {
+	private UsuarioLoginIM usuarioIM = new UsuarioLoginIM();
+
+	private async Task Logar()
+	{
+		HttpResponseMessage response = await client.PostAsJsonAsync($"/Usuario/Login", usuarioIM);
+
+
+		if (response.IsSuccessStatusCode)
+		{
+			UsuarioLoginVM usuarioVM = await response.Content.ReadFromJsonAsync<UsuarioLoginVM>();
+			await localStorage.SetItemAsync<string>("UsuarioNome", usuarioVM.Nome);
+			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", usuarioVM.Token);
+			navManager.NavigateTo("/perfil");
+		}
+	}
+
+	private async Task Logout()
+	{
+		client.DefaultRequestHeaders.Authorization = null;
+		await localStorage.ClearAsync();
+	}
+}

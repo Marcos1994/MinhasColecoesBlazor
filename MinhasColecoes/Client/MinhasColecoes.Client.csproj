@@ -5,6 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ColecoesAPI\**" />
+    <Content Remove="ColecoesAPI\**" />
+    <EmbeddedResource Remove="ColecoesAPI\**" />
+    <None Remove="ColecoesAPI\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="wwwroot\node_modules\%40popperjs\core\package.json" />
     <Content Include="wwwroot\node_modules\bootstrap-icons\font\bootstrap-icons.css" />
     <Content Include="wwwroot\node_modules\bootstrap-icons\font\bootstrap-icons.json" />
@@ -1950,6 +1957,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Blazored.LocalStorage" Version="4.1.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="5.0.13" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.13" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.13" PrivateAssets="all" />
     <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
@@ -2022,10 +2031,6 @@
     <TypeScriptCompile Include="wwwroot\node_modules\%40popperjs\core\lib\utils\uniqueBy.d.ts" />
     <TypeScriptCompile Include="wwwroot\node_modules\%40popperjs\core\lib\utils\validateModifiers.d.ts" />
     <TypeScriptCompile Include="wwwroot\node_modules\%40popperjs\core\lib\utils\within.d.ts" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="ColecoesAPI\" />
   </ItemGroup>
 
 </Project>

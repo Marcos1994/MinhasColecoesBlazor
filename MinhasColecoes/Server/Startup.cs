@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -25,6 +26,11 @@ namespace MinhasColecoes.Server
 
 			services.AddControllersWithViews();
 			services.AddRazorPages();
+
+			services.AddAuthentication(o => 
+			{
+				o.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+			}).AddCookie();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,6 +53,8 @@ namespace MinhasColecoes.Server
 			app.UseStaticFiles();
 
 			app.UseRouting();
+
+			app.UseAuthentication();
 
 			app.UseEndpoints(endpoints =>
 			{

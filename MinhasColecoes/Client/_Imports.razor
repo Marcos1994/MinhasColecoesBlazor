@@ -1,5 +1,7 @@
-﻿@using System.Net.Http
+﻿@using System.Net
+@using System.Net.Http
 @using System.Net.Http.Json
+@using System.Net.Http.Headers;
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
@@ -8,3 +10,4 @@
 @using Microsoft.JSInterop
 @using MinhasColecoes.Client
 @using MinhasColecoes.Client.Shared
+@inject Blazored.LocalStorage.ILocalStorageService localStorage

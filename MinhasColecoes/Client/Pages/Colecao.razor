@@ -24,15 +24,10 @@
 			if (response.IsSuccessStatusCode)
 				colecao = await response.Content.ReadFromJsonAsync<ColecaoVM>();
 		}
-		catch (Exception ex)
+		catch
 		{
 			status = HttpStatusCode.InternalServerError;
 		}
-	}
-
-	protected override async Task OnInitializedAsync()
-	{
-		await LoadColecao();
 	}
 
 	protected override async Task OnParametersSetAsync()
