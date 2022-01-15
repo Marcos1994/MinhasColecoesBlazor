@@ -1,7 +1,6 @@
 ﻿@page "/login"
 @using MinhasColecoes.Shared.InputModels;
 @using MinhasColecoes.Shared.ViewModels;
-@inject HttpClient client
 @inject NavigationManager navManager
 
 <div class="login-form">
@@ -29,21 +28,14 @@
 
 	private async Task Logar()
 	{
+		HttpClient client = await clientHelper.GetClient();
 		HttpResponseMessage response = await client.PostAsJsonAsync($"/Usuario/Login", usuarioIM);
-
 
 		if (response.IsSuccessStatusCode)
 		{
 			UsuarioLoginVM usuarioVM = await response.Content.ReadFromJsonAsync<UsuarioLoginVM>();
-			await localStorage.SetItemAsync<string>("UsuarioNome", usuarioVM.Nome);
-			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", usuarioVM.Token);
-			navManager.NavigateTo("/perfil");
+			await clientHelper.SetToken(usuarioVM.Token);
+			navManager.NavigateTo("/perfil", true);
 		}
-	}
-
-	private async Task Logout()
-	{
-		client.DefaultRequestHeaders.Authorization = null;
-		await localStorage.ClearAsync();
 	}
 }

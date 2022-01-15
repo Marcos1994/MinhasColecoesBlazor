@@ -1,15 +1,15 @@
 ﻿@page "/perfil"
 @using MinhasColecoes.Shared.ViewModels;
 
-<h3>@usuario.Nome</h3>
+<h3>Usuario autenticado: @(usuario!= null)</h3>
 
 @code {
 	private UsuarioBasicVM usuario;
 
 	protected override async Task OnInitializedAsync()
 	{
-		usuario = new UsuarioBasicVM();
-		usuario.Nome = await localStorage.GetItemAsync<string>("UsuarioNome");
+		if(await clientHelper.CheckAuthentication())
+			usuario = new UsuarioBasicVM();
 	}
 
 }

@@ -1,7 +1,6 @@
 ﻿@page "/colecao/{Id:int}"
 @using MinhasColecoes.Shared.ViewModels;
 @using System.Net;
-@inject HttpClient client;
 
 <h3>Coleção @colecao.Nome</h3>
 <p>@colecao.Descricao</p>
@@ -16,6 +15,7 @@
 
 	async Task LoadColecao()
 	{
+		HttpClient client = await clientHelper.GetClient();
 		try
 		{
 			HttpResponseMessage response = await client.GetAsync($"Colecoes/{Id}");

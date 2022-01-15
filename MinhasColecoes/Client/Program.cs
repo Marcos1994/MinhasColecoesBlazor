@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Blazored.LocalStorage;
+using MinhasColecoes.Client.MinhasColecoesAPI;
 
 namespace MinhasColecoes.Client
 {
@@ -26,6 +27,8 @@ namespace MinhasColecoes.Client
 			//builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 			builder.Services.AddBlazoredLocalStorage();
+
+			builder.Services.AddScoped<HttpClientHelper>();
 
 			await builder.Build().RunAsync();
 		}

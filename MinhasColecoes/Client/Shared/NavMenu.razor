@@ -10,10 +10,20 @@
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
 	<ul class="nav flex-column">
 		<li class="nav-item px-3">
-			<NavLink class="nav-link" href="login">
-				<span class="bi-person-circle mr-3" title="Login"
-					  style="font-size: 20px; line-height: 20px;"></span> Login
-			</NavLink>
+			@if (usuarioAutenticado)
+			{
+				<NavLink class="nav-link" href="perfil">
+					<span class="bi-person-circle mr-3" title="Perfil"
+						  style="font-size: 20px; line-height: 20px;"></span> Perfil
+				</NavLink>
+			}
+			else
+			{
+				<NavLink class="nav-link" href="login">
+					<span class="bi-person-circle mr-3" title="Login"
+						  style="font-size: 20px; line-height: 20px;"></span> Login
+				</NavLink>
+			}
 		</li>
 		<li class="nav-item px-3">
 			<NavLink class="nav-link" href="colecoes">
@@ -26,8 +36,13 @@
 
 @code {
 	private bool collapseNavMenu = true;
-
+	private bool usuarioAutenticado;
 	private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+	protected override async Task OnParametersSetAsync()
+	{
+		usuarioAutenticado = await clientHelper.CheckAuthentication();
+	}
 
 	private void ToggleNavMenu()
 	{

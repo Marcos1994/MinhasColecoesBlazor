@@ -1,5 +1,4 @@
 ﻿@using MinhasColecoes.Shared.ViewModels;
-@inject HttpClient client;
 
 <div class="row">
 	<div class="col-12 col-md-6 col-lg-5 col-xl-4 mb-2 mb-md-0">
@@ -79,6 +78,7 @@ else
 
 	private async Task BuscarColecoes(string nome = "")
 	{
+		HttpClient client = await clientHelper.GetClient();
 		nomeColecao = nome;
 		colecoes = null;
 		try
