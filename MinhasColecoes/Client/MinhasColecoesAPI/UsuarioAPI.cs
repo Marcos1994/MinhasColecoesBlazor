@@ -39,5 +39,11 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 		{
 			return await httpService.CheckAuthentication();
 		}
+
+		public async Task<HttpResponseMessage> GetUsuario()
+		{
+			HttpClient client = await httpService.GetClient();
+			return await client.GetAsync($"Usuario");
+		}
 	}
 }
