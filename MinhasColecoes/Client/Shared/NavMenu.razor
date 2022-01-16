@@ -1,53 +1,44 @@
 ﻿@inject UsuarioAPI usuarioApi
 
-<div class="top-row pl-4 navbar navbar-dark">
-	<div class="d-flex mx-3">
-		<a class="navbar-brand text-center" href="">Minhas Colecoes</a>
+<nav class="navbar navbar-expand-lg navbar-toggleable-sm navbar-dark bg-primary border-bottom box-shadow mb-3">
+	<div class="container">
+		<a class="navbar-brand " href="">Minhas Coleções</a>
+		<ul class="navbar-nav flex-grow-1">
+			<li class="nav-item">
+				<NavLink class="nav-link" href="colecoes">
+					<span class="bi-box-seam mr-3" title="Coleções"
+						  style="font-size: 20px; line-height: 20px;"></span> Coleções
+				</NavLink>
+			</li>
+		</ul>
+		<div class="align-self-end">
+			<ul class="navbar-nav">
+				<li class="nav-item px-3">
+					@if (usuarioAutenticado)
+					{
+						<NavLink class="nav-link" href="perfil">
+							<span class="bi-person-circle mr-3" title="Perfil"
+								  style="font-size: 20px; line-height: 20px;"></span> Perfil
+						</NavLink>
+					}
+					else
+					{
+						<NavLink class="nav-link" href="login">
+							<span class="bi-person-circle mr-3" title="Login"
+								  style="font-size: 20px; line-height: 20px;"></span> Login
+						</NavLink>
+					}
+				</li>
+			</ul>
+		</div>
 	</div>
-	<button class="navbar-toggler" @onclick="ToggleNavMenu">
-		<span class="navbar-toggler-icon"></span>
-	</button>
-</div>
-
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-	<ul class="nav flex-column">
-		<li class="nav-item px-3">
-			@if (usuarioAutenticado)
-			{
-				<NavLink class="nav-link" href="perfil">
-					<span class="bi-person-circle mr-3" title="Perfil"
-						  style="font-size: 20px; line-height: 20px;"></span> Perfil
-				</NavLink>
-			}
-			else
-			{
-				<NavLink class="nav-link" href="login">
-					<span class="bi-person-circle mr-3" title="Login"
-						  style="font-size: 20px; line-height: 20px;"></span> Login
-				</NavLink>
-			}
-		</li>
-		<li class="nav-item px-3">
-			<NavLink class="nav-link" href="colecoes">
-				<span class="bi-box-seam mr-3" title="Coleções"
-					  style="font-size: 20px; line-height: 20px;"></span> Coleções
-			</NavLink>
-		</li>
-	</ul>
-</div>
+</nav>
 
 @code {
-	private bool collapseNavMenu = true;
 	private bool usuarioAutenticado;
-	private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
 	protected override async Task OnParametersSetAsync()
 	{
 		usuarioAutenticado = await usuarioApi.CheckAuthentication();
-	}
-
-	private void ToggleNavMenu()
-	{
-		collapseNavMenu = !collapseNavMenu;
 	}
 }
