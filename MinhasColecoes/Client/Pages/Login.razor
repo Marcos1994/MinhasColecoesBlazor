@@ -2,6 +2,7 @@
 @using MinhasColecoes.Shared.InputModels;
 @using MinhasColecoes.Shared.ViewModels;
 @inject NavigationManager navManager
+@inject UsuarioAPI usuarioApi
 
 <div class="login-form">
 	<h1 class="title-gradient">Login</h1>
@@ -28,13 +29,11 @@
 
 	private async Task Logar()
 	{
-		HttpClient client = await clientHelper.GetClient();
-		HttpResponseMessage response = await client.PostAsJsonAsync($"/Usuario/Login", usuarioIM);
+		HttpResponseMessage response = await usuarioApi.Login(usuarioIM);
 
 		if (response.IsSuccessStatusCode)
 		{
-			UsuarioLoginVM usuarioVM = await response.Content.ReadFromJsonAsync<UsuarioLoginVM>();
-			await clientHelper.SetToken(usuarioVM.Token);
+			await usuarioApi.SetToken(await response.Content.ReadFromJsonAsync<UsuarioLoginVM>());
 			navManager.NavigateTo("/perfil", true);
 		}
 	}

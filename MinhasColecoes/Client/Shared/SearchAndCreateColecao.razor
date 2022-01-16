@@ -1,4 +1,5 @@
 ﻿@using MinhasColecoes.Shared.ViewModels;
+@inject ColecaoAPI colecaoApi
 
 <div class="row">
 	<div class="col-12 col-md-6 col-lg-5 col-xl-4 mb-2 mb-md-0">
@@ -78,26 +79,11 @@ else
 
 	private async Task BuscarColecoes(string nome = "")
 	{
-		HttpClient client = await clientHelper.GetClient();
-		nomeColecao = nome;
-		colecoes = null;
-		try
-		{
-			string parametro = (nomeColecao.Length > 0)
-				? $"?nome={nomeColecao}"
-				: "";
-			HttpResponseMessage response = (IdColecaoPrincipal == null)
-			? await client.GetAsync($"Colecoes{parametro}")
-			: await client.GetAsync($"/Colecoes/{IdColecaoPrincipal}/Subcolecoes{parametro}");
+		HttpResponseMessage response = await colecaoApi.GetByName(nome, IdColecaoPrincipal);
 
-			status = response.StatusCode;
-			if (response.IsSuccessStatusCode)
-				colecoes = await response.Content.ReadFromJsonAsync<List<ColecaoBasicVM>>();
-		}
-		catch (Exception ex)
-		{
-			status = HttpStatusCode.InternalServerError;
-		}
+		status = response.StatusCode;
+		if (response.IsSuccessStatusCode)
+			colecoes = await response.Content.ReadFromJsonAsync<List<ColecaoBasicVM>>();
 	}
 
 	private async Task Cadastrar(string nome)

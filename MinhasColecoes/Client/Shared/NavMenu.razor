@@ -1,4 +1,6 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿@inject UsuarioAPI usuarioApi
+
+<div class="top-row pl-4 navbar navbar-dark">
 	<div class="d-flex mx-3">
 		<a class="navbar-brand text-center" href="">Minhas Colecoes</a>
 	</div>
@@ -41,7 +43,7 @@
 
 	protected override async Task OnParametersSetAsync()
 	{
-		usuarioAutenticado = await clientHelper.CheckAuthentication();
+		usuarioAutenticado = await usuarioApi.CheckAuthentication();
 	}
 
 	private void ToggleNavMenu()

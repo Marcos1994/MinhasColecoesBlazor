@@ -1,5 +1,6 @@
 ﻿@page "/perfil"
 @using MinhasColecoes.Shared.ViewModels;
+@inject UsuarioAPI usuarioApi
 
 <h3>Usuario autenticado: @(usuario!= null)</h3>
 
@@ -8,7 +9,7 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		if(await clientHelper.CheckAuthentication())
+		if(await usuarioApi.CheckAuthentication())
 			usuario = new UsuarioBasicVM();
 	}
 
