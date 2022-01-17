@@ -7,7 +7,7 @@
 <div class="login-form">
 	<h1 class="title-gradient">Login</h1>
 	<div class="container">
-		<div class="text-danger"></div>
+		<div class="text-danger">@responseText</div>
 		<form>
 			<div class="form-floating mb-3">
 				<input class="form-control" aria-describedby="emailHelp" @bind="usuarioIM.Login" autofocus />
@@ -18,7 +18,7 @@
 				<label>Senha: </label>
 			</div>
 			<div class="text-center">
-				<input class="btn btn-lg btn-primary" @onclick="Logar" value="Confirmar" />
+				<button class="btn btn-lg btn-primary" @onclick="Logar" value="Confirmar">Confirmar</button>
 			</div>
 		</form>
 	</div>
@@ -26,10 +26,13 @@
 
 @code {
 	private UsuarioLoginIM usuarioIM = new UsuarioLoginIM();
+	private string responseText = "";
 
 	private async Task Logar()
 	{
 		HttpResponseMessage response = await usuarioApi.Login(usuarioIM);
+
+		responseText = response.ToString();
 
 		if (response.IsSuccessStatusCode)
 		{
