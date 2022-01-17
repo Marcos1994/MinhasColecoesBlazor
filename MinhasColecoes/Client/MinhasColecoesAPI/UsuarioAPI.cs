@@ -22,7 +22,6 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 		public async Task<HttpResponseMessage> Login(UsuarioLoginIM input)
 		{
 			HttpClient client = await httpService.GetClient();
-			if (client == null) return null;
 			return await client.PostAsJsonAsync($"/Usuario/Login", input);
 		}
 
