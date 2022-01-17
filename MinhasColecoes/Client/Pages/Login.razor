@@ -8,19 +8,17 @@
 	<h1 class="title-gradient">Login</h1>
 	<div class="container">
 		<div class="text-danger">@responseText</div>
-		<form>
-			<div class="form-floating mb-3">
-				<input class="form-control" aria-describedby="emailHelp" @bind="usuarioIM.Login" autofocus />
-				<label>E-mail: </label>
-			</div>
-			<div class="form-floating mb-3">
-				<input class="form-control" type="password" @bind="usuarioIM.Senha" />
-				<label>Senha: </label>
-			</div>
-			<div class="text-center">
-				<button class="btn btn-lg btn-primary" @onclick="Logar" value="Confirmar">Confirmar</button>
-			</div>
-		</form>
+		<div class="form-floating mb-3">
+			<input class="form-control" aria-describedby="emailHelp" @bind="usuarioIM.Login" autofocus />
+			<label>E-mail: </label>
+		</div>
+		<div class="form-floating mb-3">
+			<input class="form-control" type="password" @bind="usuarioIM.Senha" />
+			<label>Senha: </label>
+		</div>
+		<div class="text-center">
+			<button class="btn btn-lg btn-primary" @onclick="Logar">Confirmar</button>
+		</div>
 	</div>
 </div>
 
