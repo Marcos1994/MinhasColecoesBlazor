@@ -12,9 +12,17 @@ namespace MinhasColecoes.Shared.ViewModels
 		public string Nome { get; set; }
 		public string Descricao { get; set; }
 		public string Foto { get; set; }
-		public List<ColecaoBasicVM> ColecoesMembro { get; set; }
+		public List<ColecaoBasicVM> ColecoesMembro { get; set; } = new List<ColecaoBasicVM>();
 		public int QuantidadeMembro { get; set; }
 		public int QuantidadeDono { get; set; }
 		public int QuantidadeParticular { get; set; }
+
+		public void SetColecoesMembro(List<ColecaoBasicVM> colecoesMembro)
+		{
+			ColecoesMembro = colecoesMembro;
+			QuantidadeDono = colecoesMembro.Where(c => c.IdDono == Id).Count();
+			QuantidadeMembro = colecoesMembro.Count() - QuantidadeDono;
+			QuantidadeParticular = colecoesMembro.Where(c => !c.Publica).Count();
+		}
 	}
 }

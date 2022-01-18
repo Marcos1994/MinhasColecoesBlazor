@@ -4,7 +4,7 @@
 	<div class="input-group mb-3">
 		<button class="btn btn-primary" @onclick="Buscar">Buscar</button>
 		<input type="text" class="form-control form-control-sm" placeholder="@Mensagem" aria-label="@Mensagem" aria-describedby="button-busca" @bind="parametro">
-		@if (cadastroHabilitado)
+		@if (CadastroHabilitado)
 		{
 			<button class="btn btn-outline-secondary btn-sm" @onclick="Cadastrar">Cadastrar</button>
 		}
@@ -21,12 +21,14 @@
 	[Parameter]
 	public EventCallback<string> OnClickCadastrarCallback { get; set; }
 
+	[Parameter]
+	public bool CadastroHabilitado { get; set; } = true;
+
 	private string parametro = "";
-	private bool cadastroHabilitado = false;
 
 	protected override async Task OnInitializedAsync()
 	{
-		cadastroHabilitado = await usuarioApi.CheckAuthentication();
+		CadastroHabilitado = CadastroHabilitado && await usuarioApi.CheckAuthentication();
 	}
 
 	protected async Task Buscar()

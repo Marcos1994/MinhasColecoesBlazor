@@ -2,25 +2,26 @@
 @page "/perfil/{Id:int}"
 @using MinhasColecoes.Shared.ViewModels;
 @inject UsuarioAPI usuarioApi
+@inject ColecaoAPI colecaoApi
 @inject NavigationManager navigationManager
 
 
 <div class="row">
 	<div class="col-12 col-md-6 col-lg-4 mb-3 mb-md-0">
-		@if (usuario != null)
+		@* ------------ Nome do Usuário ------------ *@
+		<div class="row">
+			<h1>@usuario.Nome</h1>
+		</div>
+		@* --------------- Descrição --------------- *@
+		<div class="row">
+			<p>@usuario.Descricao</p>
+		</div>
+		@* ----- Resumo das coleções - Titulo ------ *@
+		<div class="row mt-3">
+			<h3>Resumo de Coleções:</h3>
+		</div>
+		@if (Id == null)
 		{
-			@* ------------ Nome do Usuário ------------ *@
-			<div class="row">
-				<h1>@usuario.Nome</h1>
-			</div>
-			@* --------------- Descrição --------------- *@
-			<div class="row">
-				<p>@usuario.Descricao</p>
-			</div>
-			@* ----- Resumo das coleções - Titulo ------ *@
-			<div class="row mt-3">
-				<h3>Resumo de Coleções:</h3>
-			</div>
 			@* ---------- Resumo das coleções ---------- *@
 			<div class="row text-primary">
 				<div class="col-3">
@@ -60,7 +61,16 @@
 		}
 	</div>
 	<div class="col-12 col-md-6 col-lg-8 mb-3">
+		<div class="row">
+			<SearchAndCreateBar Mensagem="@mensagemParametro" OnClickBuscarCallback="BuscarColecoes" OnClickCadastrarCallback="Cadastrar" CadastroHabilitado="@(Id == null)" />
+		</div>
 
+		<div class="row row-cols-2 row-cols-md-1 row-cols-lg-3 row-cols-xxl-4 g-3">
+			@foreach (ColecaoBasicVM c in colecoes)
+			{
+				<CardColecao colecao="c" />
+			}
+		</div>
 	</div>
 </div>
 
@@ -69,19 +79,37 @@
 	[Parameter]
 	public int? Id { get; set; }
 
-	private UsuarioVM usuario;
+	private UsuarioVM usuario = new UsuarioVM();
+	private List<ColecaoBasicVM> colecoes = new List<ColecaoBasicVM>();
+	private string mensagemParametro = "Nome da Coleção";
+	private string nomeColecao = "";
 
 	protected override async Task OnParametersSetAsync()
 	{
 		HttpResponseMessage response = await usuarioApi.GetUsuario(Id);
-
 		if (response.IsSuccessStatusCode)
 			usuario = await response.Content.ReadFromJsonAsync<UsuarioVM>();
+
+		response = await colecaoApi.GetByUser("", Id);
+		if (response.IsSuccessStatusCode)
+			usuario.SetColecoesMembro(await response.Content.ReadFromJsonAsync<List<ColecaoBasicVM>>());
+
+		BuscarColecoes();
 	}
 
 	protected async Task Logout()
 	{
 		await usuarioApi.Logout();
 		navigationManager.NavigateTo("/", true);
+	}
+
+	private void BuscarColecoes(string nome = "")
+	{
+		colecoes = usuario.ColecoesMembro.Where(c => c.Nome.Contains(nome)).ToList();
+	}
+
+	private async Task Cadastrar(string nome)
+	{
+
 	}
 }
