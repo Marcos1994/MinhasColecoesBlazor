@@ -1,18 +1,39 @@
 ﻿<ul class="pagination pagination-sm">
 	<li class="page-item">
-		<a class="page-link" href="#" aria-label="Previous">
-			<span aria-hidden="true">&laquo;</span>
-		</a>
+		<button class="page-link bg-primary text-white" @onclick="@(e => Navegar(PaginaAtual-1))" aria-label="Anterior">
+			<span class="bi-chevron-left" title="Anterior"
+				  style="font-size: 15px; line-height: 15px;"></span>
+		</button>
 	</li>
-	<li class="page-item"><a class="page-link" href="#">1</a></li>
-	<li class="page-item"><a class="page-link" href="#">2</a></li>
-	<li class="page-item"><a class="page-link" href="#">3</a></li>
-	<li class="page-item"><a class="page-link" href="#">4</a></li>
-	<li class="page-item"><a class="page-link" href="#">5</a></li>
+
+	@if (PaginaMinima > 1)
+	{
+		<li class="page-item"><button class="page-link bg-primary text-white" @onclick="@(e => Navegar(1))">1</button></li>
+	}
+
+	@for (int i = PaginaMinima; i <= PaginaMaxima; i++)
+	{
+		var pagina = i;
+		if (pagina == PaginaAtual)
+		{
+			<li class="page-item"><button class="page-link bg-secondary text-white" @onclick="@(e => Navegar(pagina))">@i</button></li>
+		}
+		else
+		{
+			<li class="page-item"><button class="page-link" @onclick="@(e => Navegar(pagina))">@i</button></li>
+		}
+	}
+
+	@if (PaginaMaxima < TotalPaginas)
+	{
+		<li class="page-item"><button class="page-link bg-primary text-white" @onclick="@(e => Navegar(TotalPaginas))">@TotalPaginas</button></li>
+	}
+
 	<li class="page-item">
-		<a class="page-link" href="#" aria-label="Next">
-			<span aria-hidden="true">&raquo;</span>
-		</a>
+		<button class="page-link bg-primary text-white" @onclick="@(e => Navegar(PaginaAtual+1))" aria-label="Próxima">
+			<span class="bi-chevron-right" title="Próxima"
+				  style="font-size: 15px; line-height: 15px;"></span>
+		</button>
 	</li>
 </ul>
 
@@ -21,5 +42,29 @@
 	public int TotalPaginas { get; set; }
 
 	[Parameter]
-	public int ParinaAtual { get; set; }
+	public int PaginaAtual { get; set; }
+
+	[Parameter]
+	public EventCallback<int> OnClickCallback { get; set; }
+
+	//Quantidade padrão de botões antes e depois da pagina atual
+	private int quantidadeItensMenu = 3;
+
+	private int PaginaMinima = 1;
+	private int PaginaMaxima = 1;
+
+	protected override void OnParametersSet()
+	{
+		int maximo = Math.Clamp(TotalPaginas - (quantidadeItensMenu * 2 - 1), 1, TotalPaginas);
+		PaginaMinima = Math.Clamp(PaginaAtual - (quantidadeItensMenu - 1), 1, maximo);
+
+		int minimo = Math.Clamp(quantidadeItensMenu * 2, 1, TotalPaginas);
+		PaginaMaxima = Math.Clamp(PaginaAtual + (quantidadeItensMenu - 1), minimo, TotalPaginas);
+	}
+
+	protected async Task Navegar(int pagina)
+	{
+		if(pagina > 0 && pagina <= TotalPaginas)
+			await OnClickCallback.InvokeAsync(pagina);
+	}
 }

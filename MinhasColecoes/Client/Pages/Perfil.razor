@@ -62,11 +62,19 @@
 	</div>
 	<div class="col-12 col-md-6 col-lg-8 mb-3">
 		<div class="row">
-			<SearchAndCreateBar Mensagem="@mensagemParametro" OnClickBuscarCallback="BuscarColecoes" OnClickCadastrarCallback="Cadastrar" CadastroHabilitado="@(Id == null)" />
+			<div class="col 12">
+				<SearchAndCreateBar Mensagem="@mensagemParametro" OnClickBuscarCallback="BuscarColecoes" OnClickCadastrarCallback="Cadastrar" CadastroHabilitado="@(Id == null)" />
+			</div>
+			<div class="col 12">
+				@if (totalPaginas > 1)
+				{
+					<Paginacao TotalPaginas="@totalPaginas" PaginaAtual="@paginaAtual" OnClickCallback="@NavegarPaginacao" />
+				}
+			</div>
 		</div>
 
 		<div class="row row-cols-2 row-cols-md-1 row-cols-lg-3 row-cols-xxl-4 g-3">
-			@foreach (ColecaoBasicVM c in colecoes)
+			@foreach (ColecaoBasicVM c in colecoesPaginadas)
 			{
 				<CardColecao colecao="c" />
 			}
@@ -81,6 +89,10 @@
 
 	private UsuarioVM usuario = new UsuarioVM();
 	private List<ColecaoBasicVM> colecoes = new List<ColecaoBasicVM>();
+	List<ColecaoBasicVM> colecoesPaginadas = new List<ColecaoBasicVM>();
+	private int totalPaginas = 1;
+	private int paginaAtual = 1;
+	private int itensPorPagina = 16;
 	private string mensagemParametro = "Nome da Coleção";
 	private string nomeColecao = "";
 
@@ -105,7 +117,15 @@
 
 	private void BuscarColecoes(string nome = "")
 	{
-		colecoes = usuario.ColecoesMembro.Where(c => c.Nome.Contains(nome)).ToList();
+		colecoes = usuario.ColecoesMembro.Where(c => c.Nome.Contains(nome, StringComparison.OrdinalIgnoreCase)).ToList();
+		totalPaginas = Convert.ToInt32(Math.Floor(Convert.ToDouble(colecoes.Count() / itensPorPagina)))+1;
+		NavegarPaginacao(1);
+	}
+
+	protected void NavegarPaginacao(int paginaAtual)
+	{
+		this.paginaAtual = paginaAtual;
+		colecoesPaginadas = colecoes.Skip((paginaAtual - 1) * itensPorPagina).Take(itensPorPagina).ToList();
 	}
 
 	private async Task Cadastrar(string nome)
