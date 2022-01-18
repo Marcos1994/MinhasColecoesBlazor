@@ -1,5 +1,6 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
+using MinhasColecoes.Shared.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,11 +44,17 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 			return client;
 		}
 
-		public async Task SetToken(string token)
+		public async Task<int?> GetUserId()
+		{
+			return await localStorage.GetItemAsync<int>("Id");
+		}
+
+		public async Task SetToken(UsuarioLoginVM usuario)
 		{
 			client.DefaultRequestHeaders.Authorization =
-				new AuthenticationHeaderValue("Bearer", token);
-			await localStorage.SetItemAsync<string>("Token", token);
+				new AuthenticationHeaderValue("Bearer", usuario.Token);
+			await localStorage.SetItemAsync<string>("Token", usuario.Token);
+			await localStorage.SetItemAsync<int>("Id", usuario.Id);
 		}
 
 		public async Task ClearToken()

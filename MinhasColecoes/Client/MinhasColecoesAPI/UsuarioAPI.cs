@@ -27,7 +27,7 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 
 		public async Task SetToken(UsuarioLoginVM usuario)
 		{
-			await httpService.SetToken(usuario.Token);
+			await httpService.SetToken(usuario);
 		}
 
 		public async Task Logout()
@@ -40,10 +40,17 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 			return await httpService.CheckAuthentication();
 		}
 
-		public async Task<HttpResponseMessage> GetUsuario()
+		public async Task<HttpResponseMessage> GetUsuario(int? Id)
 		{
 			HttpClient client = await httpService.GetClient();
-			return await client.GetAsync($"Usuario");
+
+			if (Id == null)
+				Id = await httpService.GetUserId();
+
+			if (Id == null)
+				return null;
+
+			return await client.GetAsync($"Usuario/{Id}");
 		}
 	}
 }

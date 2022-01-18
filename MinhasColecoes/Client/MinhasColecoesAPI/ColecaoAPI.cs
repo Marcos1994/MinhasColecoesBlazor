@@ -30,5 +30,16 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 				? await client.GetAsync($"Colecoes{parametro}")
 				: await client.GetAsync($"/Colecoes/{idColecaoPrincipal}/Subcolecoes{parametro}");
 		}
+
+		public async Task<HttpResponseMessage> GetByUser(string nome, int? idUsuario)
+		{
+			HttpClient client = await httpService.GetClient();
+
+			if (idUsuario == null)
+				idUsuario = await httpService.GetUserId();
+
+			string parametro = (nome.Length > 0) ? $"?nome={nome}" : "";
+			return await client.GetAsync($"Usuario/{idUsuario}/{parametro}");
+		}
 	}
 }

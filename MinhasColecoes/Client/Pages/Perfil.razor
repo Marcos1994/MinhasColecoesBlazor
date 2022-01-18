@@ -1,4 +1,5 @@
 ﻿@page "/perfil"
+@page "/perfil/{Id:int}"
 @using MinhasColecoes.Shared.ViewModels;
 @inject UsuarioAPI usuarioApi
 @inject NavigationManager navigationManager
@@ -59,17 +60,20 @@
 		}
 	</div>
 	<div class="col-12 col-md-6 col-lg-8 mb-3">
-		Teste
+
 	</div>
 </div>
 
 
 @code {
+	[Parameter]
+	public int? Id { get; set; }
+
 	private UsuarioVM usuario;
 
-	protected override async Task OnInitializedAsync()
+	protected override async Task OnParametersSetAsync()
 	{
-		HttpResponseMessage response = await usuarioApi.GetUsuario();
+		HttpResponseMessage response = await usuarioApi.GetUsuario(Id);
 
 		if (response.IsSuccessStatusCode)
 			usuario = await response.Content.ReadFromJsonAsync<UsuarioVM>();

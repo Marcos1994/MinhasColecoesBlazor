@@ -30,12 +30,14 @@
 	{
 		HttpResponseMessage response = await usuarioApi.Login(usuarioIM);
 
-		responseText = response.ToString();
-
 		if (response.IsSuccessStatusCode)
 		{
 			await usuarioApi.SetToken(await response.Content.ReadFromJsonAsync<UsuarioLoginVM>());
 			navManager.NavigateTo("/perfil", true);
+		}
+		else
+		{
+			responseText = response.Content.ToString();
 		}
 	}
 }
