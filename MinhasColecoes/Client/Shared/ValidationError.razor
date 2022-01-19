@@ -1,0 +1,37 @@
+﻿@using MinhasColecoes.Shared.InputModels.ErrorModel
+
+@if (mensagem.Length > 0)
+{
+	<div class="text-danger mb-3">
+		<p>@mensagem</p>
+		@foreach (ValidatorEM c in errors)
+		{
+			@c.Propriedade
+			<ul>
+				@foreach (string m in c.Mensagens)
+				{
+					 <li>@m</li>
+				}
+			</ul>
+		}
+	</div>
+}
+
+@code {
+	private string mensagem = "";
+	private List<ValidatorEM> errors;
+
+	public void SetMessage(string mensagem)
+	{
+		this.mensagem = mensagem;
+		this.errors = new List<ValidatorEM>();
+		StateHasChanged();
+	}
+
+	public void SetValidationErrors(List<ValidatorEM> errors)
+	{
+		mensagem = "Os campos informados não são válidos.";
+		this.errors = errors;
+		StateHasChanged();
+	}
+}

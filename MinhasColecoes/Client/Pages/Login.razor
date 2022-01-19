@@ -1,5 +1,6 @@
 ﻿@page "/login"
 @using MinhasColecoes.Shared.InputModels;
+@using MinhasColecoes.Shared.InputModels.ErrorModel;
 @using MinhasColecoes.Shared.ViewModels;
 @inject NavigationManager navManager
 @inject UsuarioAPI usuarioApi
@@ -7,7 +8,7 @@
 <div class="login-form">
 	<h1 class="title-gradient">Login</h1>
 	<div class="container">
-		<div class="text-danger">@responseText</div>
+		<ValidationError @ref="validationError" />
 		<div class="form-floating mb-3">
 			<input class="form-control" aria-describedby="emailHelp" @bind="usuarioIM.Login" autofocus />
 			<label>E-mail: </label>
@@ -24,7 +25,7 @@
 
 @code {
 	private UsuarioLoginIM usuarioIM = new UsuarioLoginIM();
-	private string responseText = "";
+	ValidationError validationError;
 
 	private async Task Logar()
 	{
@@ -37,7 +38,13 @@
 		}
 		else
 		{
-			responseText = response.Content.ToString();
+			if (response.StatusCode == HttpStatusCode.NotFound)
+				validationError.SetMessage("Combinação de Login e Senha não encontrada.");
+			else if (response.StatusCode == HttpStatusCode.BadRequest)
+			{
+				ResponseError<UsuarioLoginEM> error = await response.Content.ReadFromJsonAsync<ResponseError<UsuarioLoginEM>>();
+				validationError.SetValidationErrors(error.Errors.GetErrors());
+			}
 		}
 	}
 }
