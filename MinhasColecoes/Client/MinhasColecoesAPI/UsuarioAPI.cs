@@ -45,10 +45,13 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 			HttpClient client = await httpService.GetClient();
 
 			if (Id == null)
-				Id = await httpService.GetUserId();
+			{
+				if (await httpService.CheckAuthentication())
+					Id = (await httpService.GetUser()).Id;
+				else
+					return null;
+			}
 
-			if (Id == null)
-				return null;
 
 			return await client.GetAsync($"Usuario/{Id}");
 		}

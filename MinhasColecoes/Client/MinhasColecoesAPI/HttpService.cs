@@ -13,6 +13,10 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 {
     public class HttpService
     {
+		private UsuarioLoginVM usuarioAtual;
+		public event Action OnChange;
+		private void NotifyStateChange() => OnChange?.Invoke();
+
         private readonly HttpClient client;
         private readonly NavigationManager navigationManager;
         private readonly ILocalStorageService localStorage;
@@ -26,46 +30,54 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 
 		public async Task<HttpClient> GetClient()
 		{
-			if (await localStorage.ContainKeyAsync("Token"))
+			if (await CheckAuthentication())
 			{
-				string token = await localStorage.GetItemAsync<string>("Token");
+				string token = (await GetUser()).Token;
 				HttpResponseMessage response = await client.GetAsync($"Usuario/VerificarToken?token={token}");
 
 				if (!response.IsSuccessStatusCode)
 				{
 					await ClearToken();
-					navigationManager.NavigateTo("sessaoexpirada", true);
+					navigationManager.NavigateTo("sessaoexpirada");
 				}
-
-				if (client.DefaultRequestHeaders.Authorization == null)
+				else if (client.DefaultRequestHeaders.Authorization == null)
 					client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 			}
 
 			return client;
 		}
 
-		public async Task<int?> GetUserId()
+		public async Task<UsuarioLoginVM> GetUser()
 		{
-			return await localStorage.GetItemAsync<int>("Id");
+			usuarioAtual = await localStorage.GetItemAsync<UsuarioLoginVM>("Usuario");
+			return usuarioAtual;
+		}
+
+		public UsuarioLoginVM GetUserSync()
+		{
+			return usuarioAtual;
+		}
+
+		public async Task<bool> CheckAuthentication()
+		{
+			return await localStorage.ContainKeyAsync("Usuario");
 		}
 
 		public async Task SetToken(UsuarioLoginVM usuario)
 		{
 			client.DefaultRequestHeaders.Authorization =
 				new AuthenticationHeaderValue("Bearer", usuario.Token);
-			await localStorage.SetItemAsync<string>("Token", usuario.Token);
-			await localStorage.SetItemAsync<int>("Id", usuario.Id);
+			await localStorage.SetItemAsync<UsuarioLoginVM>("Usuario", usuario);
+			usuarioAtual = usuario;
+			NotifyStateChange();
 		}
 
 		public async Task ClearToken()
 		{
 			client.DefaultRequestHeaders.Authorization = null;
 			await localStorage.ClearAsync();
-		}
-
-		public async Task<bool> CheckAuthentication()
-		{
-			return await localStorage.ContainKeyAsync("Token");
+			usuarioAtual = null;
+			NotifyStateChange();
 		}
 	}
 }

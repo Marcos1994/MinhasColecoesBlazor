@@ -112,7 +112,7 @@
 	protected async Task Logout()
 	{
 		await usuarioApi.Logout();
-		navigationManager.NavigateTo("/", true);
+		navigationManager.NavigateTo("/");
 	}
 
 	private void BuscarColecoes(string nome = "")

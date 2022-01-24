@@ -1,4 +1,6 @@
-﻿@inject UsuarioAPI usuarioApi
+﻿@using MinhasColecoes.Shared.ViewModels
+@implements IDisposable
+@inject HttpService httpService
 
 <nav class="navbar navbar-expand-lg navbar-toggleable-sm navbar-dark bg-primary border-bottom box-shadow mb-3">
 	<div class="container">
@@ -14,7 +16,7 @@
 		<div class="align-self-end">
 			<ul class="navbar-nav">
 				<li class="nav-item px-3">
-					@if (usuarioAutenticado)
+					@if (usuarioAtual != null)
 					{
 						<NavLink class="nav-link" href="perfil">
 							<span class="bi-person-circle mr-3" title="Perfil"
@@ -35,10 +37,22 @@
 </nav>
 
 @code {
-	private bool usuarioAutenticado;
+	private UsuarioLoginVM usuarioAtual;
 
-	protected override async Task OnParametersSetAsync()
+	protected override async Task OnInitializedAsync()
 	{
-		usuarioAutenticado = await usuarioApi.CheckAuthentication();
+		httpService.OnChange += VerificarUsuario;
+		usuarioAtual = await httpService.GetUser();
+	}
+
+	private void VerificarUsuario()
+	{
+		usuarioAtual = httpService.GetUserSync();
+		StateHasChanged();
+	}
+
+	public void Dispose()
+	{
+		httpService.OnChange -= VerificarUsuario;
 	}
 }

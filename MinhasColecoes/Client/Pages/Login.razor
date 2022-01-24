@@ -34,7 +34,7 @@
 		if (response.IsSuccessStatusCode)
 		{
 			await usuarioApi.SetToken(await response.Content.ReadFromJsonAsync<UsuarioLoginVM>());
-			navManager.NavigateTo("/perfil", true);
+			navManager.NavigateTo("/perfil");
 		}
 		else
 		{

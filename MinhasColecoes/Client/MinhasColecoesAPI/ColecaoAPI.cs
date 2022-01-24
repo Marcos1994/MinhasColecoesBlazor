@@ -36,7 +36,7 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 			HttpClient client = await httpService.GetClient();
 
 			if (idUsuario == null)
-				idUsuario = await httpService.GetUserId();
+				idUsuario = (await httpService.GetUser()).Id;
 
 			string parametro = (nome.Length > 0) ? $"?nome={nome}" : "";
 			return await client.GetAsync($"Usuario/{idUsuario}/MinhasColecoes{parametro}");
