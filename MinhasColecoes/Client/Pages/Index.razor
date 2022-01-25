@@ -1,7 +1,93 @@
 ﻿@page "/"
+@using System.IO
+@using Tewr.Blazor.FileReader
+@inject IFileReaderService fileReader
+@inject MinhasColecoesAPI.FileUploadAPI fileUploader
 
-<h1>Hello, world!</h1>
+<h1>Upload File</h1>
 
-Welcome to your new app.
+<div class="row">
+	<div class="col-4">
+		<div class="form-group">
+			@*<input type="file" @ref="inputFile" @onchange="async () => await OpenFile()" multiple/>*@
+			<input type="file" @ref="inputFile" @onchange="async () => await OpenFile()" />
+			<ul>
+				<li>Nome: @nome</li>
+				<li>Tamanho: @tamanho</li>
+				<li>Tipo: @tipo</li>
+			</ul>
+			<button class="btn btn-block btn-secondary" @onclick="async () => await UploadFile()">Upload!</button>
+			@if (!string.IsNullOrEmpty(message))
+			{
+				<div class="alert alert-success">
+					File Uploaded.
+					<br/>
+					@message
+				</div>
+			}
+		</div>
+	</div>
+	<div class="col-4">
+		@if (imgPath != null)
+		{
+			<img style="width: 150px" src="@imgPath" />
+		}
+	</div>
+</div>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@code{
+	ElementReference inputFile;
+	string message = string.Empty;
+	string imgPath = "F/Projetos/GerenciadorDeColecoes/MinhasColecoes/MinhasColecoes.API/wwwroot/Upload/265502569_989572808567746_5973159629260389321_n.jpg";
+
+	string nome = string.Empty;
+	string tipo = string.Empty;
+	long tamanho = 0;
+
+	async Task OpenFile()
+	{
+		IFileReference file = (await fileReader.CreateReference(inputFile).EnumerateFilesAsync()).FirstOrDefault();
+
+		if (file == null)
+			return;
+
+		var fileInfo = await file.ReadFileInfoAsync();
+		nome = fileInfo.Name;
+		tipo = fileInfo.Type;
+		tamanho = fileInfo.Size;
+	}
+
+	async Task UploadFile()
+	{
+		MultipartFormDataContent content = new MultipartFormDataContent();
+		content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data");
+
+		IFileReference file = (await fileReader.CreateReference(inputFile).EnumerateFilesAsync()).FirstOrDefault();
+
+		if (file == null)
+			return;
+
+		try
+		{
+			using (var fileStream = await file.CreateMemoryStreamAsync((int)tamanho))
+			{
+				StreamContent sc = new StreamContent(fileStream, (int)fileStream.Length);
+
+				content.Add(sc, "image", nome);
+
+				HttpResponseMessage response = await fileUploader.Upload(content);
+
+				if (response.IsSuccessStatusCode)
+				{
+					imgPath = fileUploader.GetBaseUrl() + (await response.Content.ReadAsStringAsync());
+				}
+
+				message = response.StatusCode.ToString();
+			}
+		}
+		catch (Exception ex)
+		{
+			message = ex.Message;
+		}
+	}
+}

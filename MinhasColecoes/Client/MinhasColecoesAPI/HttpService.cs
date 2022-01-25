@@ -21,11 +21,14 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
         private readonly NavigationManager navigationManager;
         private readonly ILocalStorageService localStorage;
 
+		public string BaseUrl { get; private set; }
+
 		public HttpService(HttpClient client, NavigationManager navigationManager, ILocalStorageService localStorage)
 		{
 			this.client = client;
 			this.navigationManager = navigationManager;
 			this.localStorage = localStorage;
+			BaseUrl = client.BaseAddress.AbsoluteUri;
 		}
 
 		public async Task<HttpClient> GetClient()
