@@ -1,8 +1,8 @@
 ﻿@page "/perfil"
 @page "/perfil/{Id:int}"
 @using MinhasColecoes.Shared.ViewModels;
-@inject UsuarioAPI usuarioApi
-@inject ColecaoAPI colecaoApi
+@inject UsuarioApiService usuarioService
+@inject ColecaoApiService colecaoService
 @inject NavigationManager navigationManager
 
 
@@ -63,7 +63,7 @@
 	<div class="col-12 col-md-6 col-lg-8 mb-3">
 		<div class="row">
 			<div class="col 12">
-				<SearchAndCreateBar Mensagem="@mensagemParametro" OnClickBuscarCallback="BuscarColecoes" OnClickCadastrarCallback="Cadastrar" CadastroHabilitado="@(Id == null)" />
+				<SearchAndCreateBar Mensagem="Nome da Coleção" OnClickBuscarCallback="BuscarColecoes" OnClickCadastrarCallback="Cadastrar" CadastroHabilitado="@(Id == null)" />
 			</div>
 			<div class="col 12">
 				@if (totalPaginas > 1)
@@ -93,25 +93,34 @@
 	private int totalPaginas = 1;
 	private int paginaAtual = 1;
 	private int itensPorPagina = 16;
-	private string mensagemParametro = "Nome da Coleção";
 	private string nomeColecao = "";
 
 	protected override async Task OnParametersSetAsync()
 	{
-		HttpResponseMessage response = await usuarioApi.GetUsuario(Id);
-		if (response.IsSuccessStatusCode)
-			usuario = await response.Content.ReadFromJsonAsync<UsuarioVM>();
+		try
+		{
+			usuario = await usuarioService.GetUsuario(Id);
+		}
+		catch (HttpResponseException ex)
+		{
+			HttpResponseMessage response = ex.Response;
+		}
 
-		response = await colecaoApi.GetByUser("", Id);
-		if (response.IsSuccessStatusCode)
-			usuario.SetColecoesMembro(await response.Content.ReadFromJsonAsync<List<ColecaoBasicVM>>());
+		try
+		{
+			usuario.SetColecoesMembro(await colecaoService.GetByUser("", Id));
+		}
+		catch (HttpResponseException ex)
+		{
+			HttpResponseMessage response = ex.Response;
+		}
 
 		BuscarColecoes();
 	}
 
 	protected async Task Logout()
 	{
-		await usuarioApi.Logout();
+		await usuarioService.Logout();
 		navigationManager.NavigateTo("/");
 	}
 

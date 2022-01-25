@@ -35,9 +35,9 @@ namespace MinhasColecoes.Client
 			});
 
 			builder.Services.AddScoped<HttpService>();
-			builder.Services.AddScoped<FileUploadAPI>();
-			builder.Services.AddScoped<UsuarioAPI>();
-			builder.Services.AddScoped<ColecaoAPI>();
+			builder.Services.AddScoped<FileUploadApiService>();
+			builder.Services.AddScoped<UsuarioApiService>();
+			builder.Services.AddScoped<ColecaoApiService>();
 
 			await builder.Build().RunAsync();
 		}

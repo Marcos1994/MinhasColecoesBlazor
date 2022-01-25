@@ -2,7 +2,7 @@
 @using System.IO
 @using Tewr.Blazor.FileReader
 @inject IFileReaderService fileReader
-@inject MinhasColecoesAPI.FileUploadAPI fileUploader
+@inject MinhasColecoesAPI.FileUploadApiService fileUploader
 
 <h1>Upload File</h1>
 
@@ -38,7 +38,7 @@
 @code{
 	ElementReference inputFile;
 	string message = string.Empty;
-	string imgPath = "F/Projetos/GerenciadorDeColecoes/MinhasColecoes/MinhasColecoes.API/wwwroot/Upload/265502569_989572808567746_5973159629260389321_n.jpg";
+	string imgPath = string.Empty;
 
 	string nome = string.Empty;
 	string tipo = string.Empty;
@@ -75,14 +75,15 @@
 
 				content.Add(sc, "image", nome);
 
-				HttpResponseMessage response = await fileUploader.Upload(content, EnumCategoriasFotos.Item);
-
-				if (response.IsSuccessStatusCode)
+				try
 				{
-					imgPath = fileUploader.GetBaseUrl() + (await response.Content.ReadAsStringAsync());
+					imgPath = await fileUploader.Upload(content, EnumCategoriasFotos.Item);
+					message = "Arquivo carregado com sucesso!";
 				}
-
-				message = response.StatusCode.ToString();
+				catch (HttpResponseException ex)
+				{
+					message = $"{ex.Response.StatusCode.ToString()}";
+				}
 			}
 		}
 		catch (Exception ex)

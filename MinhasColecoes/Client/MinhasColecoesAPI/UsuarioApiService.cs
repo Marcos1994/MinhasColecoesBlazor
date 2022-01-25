@@ -1,5 +1,4 @@
-﻿using Blazored.LocalStorage;
-using MinhasColecoes.Shared.InputModels;
+﻿using MinhasColecoes.Shared.InputModels;
 using MinhasColecoes.Shared.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -10,24 +9,26 @@ using System.Threading.Tasks;
 
 namespace MinhasColecoes.Client.MinhasColecoesAPI
 {
-	public class UsuarioAPI
+	public class UsuarioApiService
 	{
 		private readonly HttpService httpService;
 
-		public UsuarioAPI(HttpService httpService)
+		public UsuarioApiService(HttpService httpService)
 		{
 			this.httpService = httpService;
 		}
 
-		public async Task<HttpResponseMessage> Login(UsuarioLoginIM input)
+		public async Task<UsuarioLoginVM> Login(UsuarioLoginIM input)
 		{
 			HttpClient client = await httpService.GetClient();
-			return await client.PostAsJsonAsync($"/Usuario/Login", input);
-		}
+			HttpResponseMessage response = await client.PostAsJsonAsync($"/Usuario/Login", input);
 
-		public async Task SetToken(UsuarioLoginVM usuario)
-		{
+			if (!response.IsSuccessStatusCode)
+				throw new HttpResponseException(response);
+
+			UsuarioLoginVM usuario = await response.Content.ReadFromJsonAsync<UsuarioLoginVM>();
 			await httpService.SetToken(usuario);
+			return usuario;
 		}
 
 		public async Task Logout()
@@ -40,7 +41,7 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 			return await httpService.CheckAuthentication();
 		}
 
-		public async Task<HttpResponseMessage> GetUsuario(int? Id)
+		public async Task<UsuarioVM> GetUsuario(int? Id)
 		{
 			HttpClient client = await httpService.GetClient();
 
@@ -52,8 +53,12 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 					return null;
 			}
 
+			HttpResponseMessage response = await client.GetAsync($"Usuario/{Id}");
 
-			return await client.GetAsync($"Usuario/{Id}");
+			if (!response.IsSuccessStatusCode)
+				throw new HttpResponseException(response);
+
+			return await response.Content.ReadFromJsonAsync<UsuarioVM>();
 		}
 	}
 }

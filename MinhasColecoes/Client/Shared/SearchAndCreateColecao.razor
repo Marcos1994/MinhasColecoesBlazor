@@ -1,5 +1,5 @@
 ﻿@using MinhasColecoes.Shared.ViewModels;
-@inject ColecaoAPI colecaoApi
+@inject ColecaoApiService colecaoService
 
 <div class="row">
 	<div class="col-12 col-md-6 col-lg-5 col-xl-4 mb-2 mb-md-0">
@@ -79,11 +79,14 @@ else
 
 	private async Task BuscarColecoes(string nome = "")
 	{
-		HttpResponseMessage response = await colecaoApi.GetByName(nome, IdColecaoPrincipal);
-
-		status = response.StatusCode;
-		if (response.IsSuccessStatusCode)
-			colecoes = await response.Content.ReadFromJsonAsync<List<ColecaoBasicVM>>();
+		try
+		{
+			colecoes = await colecaoService.GetByName(nome, IdColecaoPrincipal);
+		}
+		catch (HttpResponseException ex)
+		{
+			status = ex.Response.StatusCode;
+		}
 	}
 
 	private async Task Cadastrar(string nome)

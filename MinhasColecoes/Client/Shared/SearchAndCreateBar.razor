@@ -1,4 +1,4 @@
-﻿@inject UsuarioAPI usuarioApi
+﻿@inject HttpService httpService
 
 <div class="d-flex">
 	<div class="input-group mb-3">
@@ -28,7 +28,7 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		CadastroHabilitado = CadastroHabilitado && await usuarioApi.CheckAuthentication();
+		CadastroHabilitado = CadastroHabilitado && (await httpService.GetUser()) != null;
 	}
 
 	protected async Task Buscar()

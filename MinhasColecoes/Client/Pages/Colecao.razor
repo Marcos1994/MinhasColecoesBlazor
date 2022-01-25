@@ -1,7 +1,7 @@
 ﻿@page "/colecao/{Id:int}"
 @using MinhasColecoes.Shared.ViewModels;
 @using System.Net;
-@inject ColecaoAPI colecaoApi
+@inject ColecaoApiService colecaoService
 
 <h3>Coleção @colecao.Nome</h3>
 <p>@colecao.Descricao</p>
@@ -15,10 +15,14 @@
 
 	async Task LoadColecao()
 	{
-		HttpResponseMessage response = await colecaoApi.GetById(Id);
+		try
+		{
+			colecao = await colecaoService.GetById(Id);
+		}
+		catch (Exception ex)
+		{
 
-		if (response.IsSuccessStatusCode)
-			colecao = await response.Content.ReadFromJsonAsync<ColecaoVM>();
+		}
 	}
 
 	protected override async Task OnParametersSetAsync()

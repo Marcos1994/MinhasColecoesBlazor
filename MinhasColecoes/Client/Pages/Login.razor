@@ -3,7 +3,7 @@
 @using MinhasColecoes.Shared.InputModels.ErrorModel;
 @using MinhasColecoes.Shared.ViewModels;
 @inject NavigationManager navManager
-@inject UsuarioAPI usuarioApi
+@inject UsuarioApiService usuarioService
 
 <div class="login-form">
 	<h1 class="title-gradient">Login</h1>
@@ -29,15 +29,15 @@
 
 	private async Task Logar()
 	{
-		HttpResponseMessage response = await usuarioApi.Login(usuarioIM);
-
-		if (response.IsSuccessStatusCode)
+		try
 		{
-			await usuarioApi.SetToken(await response.Content.ReadFromJsonAsync<UsuarioLoginVM>());
+			UsuarioLoginVM usuarioLogin = await usuarioService.Login(usuarioIM);
 			navManager.NavigateTo("/perfil");
 		}
-		else
+		catch (HttpResponseException ex)
 		{
+			HttpResponseMessage response = ex.Response;
+
 			if (response.StatusCode == HttpStatusCode.NotFound)
 				validationError.SetMessage("Combinação de Login e Senha não encontrada.");
 			else if (response.StatusCode == HttpStatusCode.BadRequest)
