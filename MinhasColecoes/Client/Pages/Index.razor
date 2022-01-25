@@ -75,7 +75,7 @@
 
 				content.Add(sc, "image", nome);
 
-				HttpResponseMessage response = await fileUploader.Upload(content);
+				HttpResponseMessage response = await fileUploader.Upload(content, EnumCategoriasFotos.Item);
 
 				if (response.IsSuccessStatusCode)
 				{

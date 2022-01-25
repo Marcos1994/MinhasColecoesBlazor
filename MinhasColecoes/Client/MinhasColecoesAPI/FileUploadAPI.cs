@@ -22,10 +22,10 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 			return httpService.BaseUrl;
 		}
 
-		public async Task<HttpResponseMessage> Upload(MultipartFormDataContent input)
+		public async Task<HttpResponseMessage> Upload(MultipartFormDataContent input, EnumCategoriasFotos categoria)
 		{
 			HttpClient client = await httpService.GetClient();
-			return await client.PostAsync($"/FileUpload", input);
+			return await client.PostAsync($"/FileUpload/{categoria.ToString()}", input);
 		}
 	}
 }
