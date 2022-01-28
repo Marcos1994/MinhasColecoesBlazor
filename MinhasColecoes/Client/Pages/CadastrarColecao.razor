@@ -1,0 +1,23 @@
+﻿@page "/novacolecao"
+@page "/novacolecao/{IdSuperColecao:int}"
+@using MinhasColecoes.Shared.InputModels
+@inject ColecaoApiService colecaoService
+
+<h3>CadastrarColecao</h3>
+<ImageUploader @ref="uploader" Categoria="EnumCategoriasFotos.Colecao" />
+<div class="row">
+	<button class="btn btn-lg btn-primary" @onclick="CarregarImagem">Confirmar</button>
+</div>
+
+@code {
+	[Parameter]
+	public int? IdSuperColecao { get; set; }
+
+	private ImageUploader uploader;
+	private string imgPath = string.Empty;
+
+	private async Task CarregarImagem()
+	{
+		imgPath = await uploader.UploadFile();
+	}
+}
