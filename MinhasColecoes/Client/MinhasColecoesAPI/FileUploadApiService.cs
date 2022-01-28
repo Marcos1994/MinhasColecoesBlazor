@@ -17,6 +17,11 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 			this.httpService = httpService;
 		}
 
+		public string GetBaseUrl()
+		{
+			return httpService.BaseUrl;
+		}
+
 		public async Task<string> Upload(MultipartFormDataContent input, EnumCategoriasFotos categoria)
 		{
 			HttpClient client = await httpService.GetClient();

@@ -1,20 +1,21 @@
 ﻿@using System.IO
 @using Tewr.Blazor.FileReader
+@using MinhasColecoes.Client.Models
 @inject IFileReaderService fileReader
 @inject FileUploadApiService uploader
 
 
 <div class="row mb-3" style="height: 200px;">
-	@if (false)
+	@if (imagem.Preview != string.Empty)
 	{
 		<div class="row" style="height: 200px;">
-			<img style="max-width: 100%; max-height: 100%;" src="" />
+			<img style="max-width: 100%; max-height: 100%;" src="@imagem.Preview" />
 		</div>
 	}
 </div>
 <div class="row mb-3">
 	<div class="form-group">
-		<input type="file" @ref="inputFile" @onchange="async () => await OpenFile()" accept=".jpg,.jpeg,.png,.bmp" />
+		<input type="file" @ref="inputFile" @onchange="async () => await OpenFile()" accept="image/*" />
 	</div>
 </div>
 @if (!string.IsNullOrEmpty(mensagem))
@@ -39,32 +40,19 @@
 	[Parameter]
 	public EnumCategoriasFotos Categoria { get; set; }
 
-	private long maxFileSize = 0;
+	[Parameter]
+	public string Url { get; set; } = string.Empty;
 
 	ElementReference inputFile;
+	ImageUploaderModel imagem;
 	bool mensagemErro = false;
 	string mensagem = string.Empty;
 
-	IFileReference file;
-	string nome = string.Empty;
-	string tipo = string.Empty;
-	long tamanho = 0;
-
 	protected override void OnInitialized()
 	{
-		maxFileSize = 1024;
-		switch (Categoria)
-		{
-			case EnumCategoriasFotos.Colecao:
-				maxFileSize *= 100;
-				break;
-			case EnumCategoriasFotos.Perfil:
-				maxFileSize *= 150;
-				break;
-			case EnumCategoriasFotos.Item:
-				maxFileSize *= 250;
-				break;
-		}
+		imagem = new ImageUploaderModel(Categoria, uploader.GetBaseUrl());
+		if (Url != string.Empty)
+			imagem.SetUrl(Url);
 	}
 
 	private void SetMensagem(string mensagem, bool mensagemErro = false)
@@ -76,21 +64,13 @@
 	private async Task OpenFile()
 	{
 		SetMensagem(string.Empty);
-		file = (await fileReader.CreateReference(inputFile).EnumerateFilesAsync()).FirstOrDefault();
-
-		if (file == null)
-			return;
-
-		var fileInfo = await file.ReadFileInfoAsync();
-		if (fileInfo.Size > maxFileSize)
+		try
 		{
-			SetMensagem($"O arquivo deve ter no máximo {maxFileSize / 1024}Mb.", true);
+			await imagem.SetFileAsync((await fileReader.CreateReference(inputFile).EnumerateFilesAsync()).FirstOrDefault());
 		}
-		else
+		catch (Exception ex)
 		{
-			nome = fileInfo.Name;
-			tipo = fileInfo.Type;
-			tamanho = fileInfo.Size;
+			SetMensagem(ex.Message, true);
 		}
 	}
 
@@ -99,25 +79,28 @@
 		MultipartFormDataContent content = new MultipartFormDataContent();
 		content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data");
 
-		if (file == null)
+		if (imagem.File == null)
 		{
+			if (imagem.Url != string.Empty)
+				return imagem.Url;
+
 			SetMensagem("Nenhum arquivo encontrado.", true);
 			return string.Empty;
 		}
 
 		try
 		{
-			using (var fileStream = await file.CreateMemoryStreamAsync((int)tamanho))
+			using (var fileStream = await imagem.File.CreateMemoryStreamAsync((int)imagem.Tamanho))
 			{
 				StreamContent sc = new StreamContent(fileStream, (int)fileStream.Length);
 
-				content.Add(sc, "image", nome);
+				content.Add(sc, "image", imagem.Nome);
 
 				try
 				{
-					string imgPath = await uploader.Upload(content, Categoria);
+					imagem.SetUrl(await uploader.Upload(content, Categoria));
 					SetMensagem("Arquivo carregado com sucesso!");
-					return imgPath;
+					return imagem.Url;
 				}
 				catch (HttpResponseException ex)
 				{
