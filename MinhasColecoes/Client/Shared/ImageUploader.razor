@@ -1,0 +1,134 @@
+﻿@using System.IO
+@using Tewr.Blazor.FileReader
+@inject IFileReaderService fileReader
+@inject FileUploadApiService uploader
+
+
+<div class="row mb-3" style="height: 200px;">
+	@if (false)
+	{
+		<div class="row" style="height: 200px;">
+			<img style="max-width: 100%; max-height: 100%;" src="" />
+		</div>
+	}
+</div>
+<div class="row mb-3">
+	<div class="form-group">
+		<input type="file" @ref="inputFile" @onchange="async () => await OpenFile()" accept=".jpg,.jpeg,.png,.bmp" />
+	</div>
+</div>
+@if (!string.IsNullOrEmpty(mensagem))
+{
+	<div class="row mb-3">
+		@if (mensagemErro)
+		{
+			<div class="alert alert-danger">
+				@mensagem
+			</div>
+		}
+		else
+		{
+			<div class="alert alert-success">
+				@mensagem
+			</div>
+		}
+	</div>
+}
+
+@code {
+	[Parameter]
+	public EnumCategoriasFotos Categoria { get; set; }
+
+	private long maxFileSize = 0;
+
+	ElementReference inputFile;
+	bool mensagemErro = false;
+	string mensagem = string.Empty;
+
+	IFileReference file;
+	string nome = string.Empty;
+	string tipo = string.Empty;
+	long tamanho = 0;
+
+	protected override void OnInitialized()
+	{
+		maxFileSize = 1024;
+		switch (Categoria)
+		{
+			case EnumCategoriasFotos.Colecao:
+				maxFileSize *= 100;
+				break;
+			case EnumCategoriasFotos.Perfil:
+				maxFileSize *= 150;
+				break;
+			case EnumCategoriasFotos.Item:
+				maxFileSize *= 250;
+				break;
+		}
+	}
+
+	private void SetMensagem(string mensagem, bool mensagemErro = false)
+	{
+		this.mensagem = mensagem;
+		this.mensagemErro = mensagemErro;
+	}
+
+	private async Task OpenFile()
+	{
+		SetMensagem(string.Empty);
+		file = (await fileReader.CreateReference(inputFile).EnumerateFilesAsync()).FirstOrDefault();
+
+		if (file == null)
+			return;
+
+		var fileInfo = await file.ReadFileInfoAsync();
+		if (fileInfo.Size > maxFileSize)
+		{
+			SetMensagem($"O arquivo deve ter no máximo {maxFileSize / 1024}Mb.", true);
+		}
+		else
+		{
+			nome = fileInfo.Name;
+			tipo = fileInfo.Type;
+			tamanho = fileInfo.Size;
+		}
+	}
+
+	public async Task<string> UploadFile()
+	{
+		MultipartFormDataContent content = new MultipartFormDataContent();
+		content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data");
+
+		if (file == null)
+		{
+			SetMensagem("Nenhum arquivo encontrado.", true);
+			return string.Empty;
+		}
+
+		try
+		{
+			using (var fileStream = await file.CreateMemoryStreamAsync((int)tamanho))
+			{
+				StreamContent sc = new StreamContent(fileStream, (int)fileStream.Length);
+
+				content.Add(sc, "image", nome);
+
+				try
+				{
+					string imgPath = await uploader.Upload(content, Categoria);
+					SetMensagem("Arquivo carregado com sucesso!");
+					return imgPath;
+				}
+				catch (HttpResponseException ex)
+				{
+					SetMensagem($"{ex.Response.StatusCode.ToString()}", true);
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			SetMensagem($"{ex.Message}", true);
+		}
+		return string.Empty;
+	}
+}

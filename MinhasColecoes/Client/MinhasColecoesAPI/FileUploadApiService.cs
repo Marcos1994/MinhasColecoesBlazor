@@ -25,7 +25,7 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 			if (!response.IsSuccessStatusCode)
 				throw new HttpResponseException(response);
 
-			return httpService.BaseUrl + (await response.Content.ReadAsStringAsync());
+			return await response.Content.ReadAsStringAsync();
 		}
 	}
 }
