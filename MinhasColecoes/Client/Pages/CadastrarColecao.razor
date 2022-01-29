@@ -1,4 +1,5 @@
 ﻿@page "/novacolecao"
+@using MinhasColecoes.Shared.ViewModels
 @using MinhasColecoes.Shared.InputModels
 @using MinhasColecoes.Shared.InputModels.ErrorModel;
 @inject ColecaoApiService colecaoService
@@ -27,6 +28,35 @@
 			<button class="btn btn-lg btn-primary" @onclick="Confirmar">Confirmar</button>
 		</div>
 	</div>
+
+	<div class="col-12 col-md-6 col-lg-8 mb-3">
+		<div class="row">
+			<SearchAndCreateBar Mensagem="Nome da Coleção" OnClickBuscarCallback="BuscarColecoes" CadastroHabilitado="false" />
+		</div>
+
+		<div class="row">
+			@if (colecao.IdColecaoMaior == null)
+			{
+				<h4 class="mb-3">Se esta coleção for uma subcoleção, selecione sua coleção maior.</h4>
+			}
+			else
+			{
+				<div class="col col-auto">
+					<button class="btn btn-sm btn-danger" @onclick="e => DefinirColecaoMaior(null)">Cancelar</button>
+				</div>
+				<div class="col">
+					<GenealogiaColecao IdColecaoMaior="colecao.IdColecaoMaior" OnClickCallback="DefinirColecaoMaior" />
+				</div>
+			}
+		</div>
+
+		<div class="row row-cols-2 row-cols-md-1 row-cols-lg-3 row-cols-xxl-4 g-3">
+			@foreach (ColecaoBasicVM c in colecoes)
+			{
+				<CardColecao colecao="c" OnClickCallback="DefinirColecaoMaior" />
+			}
+		</div>
+	</div>
 </div>
 
 @code {
@@ -37,9 +67,32 @@
 	private ImageUploader uploader;
 	private ColecaoIM colecao;
 
-	protected override void OnInitialized()
+	private List<ColecaoBasicVM> colecoes = new List<ColecaoBasicVM>();
+	private string nomeColecao = "";
+
+	protected override async Task OnInitializedAsync()
 	{
 		colecao = new ColecaoIM() { Nome = Nome };
+		await BuscarColecoes();
+	}
+
+	private async Task BuscarColecoes()
+	{
+		try
+		{
+			colecoes = await colecaoService.GetByName(nomeColecao, colecao.IdColecaoMaior);
+		}
+		catch (HttpResponseException ex)
+		{
+			HttpResponseMessage response = ex.Response;
+		}
+	}
+
+	private async Task DefinirColecaoMaior(ColecaoBasicVM colecao)
+	{
+		this.colecao.IdColecaoMaior = (colecao == null)
+			? null : colecao.Id;
+		await BuscarColecoes();
 	}
 
 	private async Task Confirmar()
