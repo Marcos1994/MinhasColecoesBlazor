@@ -6,21 +6,22 @@
 
 
 <div class="row mb-3" style="height: 200px;">
-	@if (imagem.Preview != string.Empty)
-	{
-		<div class="row" style="height: 200px;">
-			<div class="d-block" style="height: 200px;">
-				@if (string.IsNullOrEmpty(imagem.Preview))
-				{
-					<img class="mx-auto d-block" style="max-width: 100%; max-height: 100%;" src="/img/fotos/Colecao/_foto_padrao.jpg" />
-				}
-				else
-				{
-					<img class="mx-auto d-block" style="max-width: 100%; max-height: 100%;" src="@imagem.Preview" />
-				}
-			</div>
+	<div class="col border border-dark rounded-3" style="height: 200px;">
+		<div class="d-block position-relative" style="height: 200px;">
+			@if (string.IsNullOrEmpty(imagem.Preview))
+			{
+				<img class="mx-auto d-block" style="max-width: 100%; max-height: 100%;" src="/img/fotos/Colecao/_foto_padrao.jpg" />
+			}
+			else
+			{
+				<button class="position-absolute end-0 top-0 text-danger bg-white rounded-bottom border-0" @onclick="imagem.Clear">
+					<i class="bi-x-circle" title="Remover Imagem"
+					   style="font-size: 20px; line-height: 20px;"></i>
+				</button>
+				<img class="mx-auto d-block" style="max-width: 100%; max-height: 100%;" src="@imagem.Preview" />
+			}
 		</div>
-	}
+	</div>
 </div>
 <div class="row mb-3">
 	<div class="form-group">
@@ -30,17 +31,9 @@
 @if (!string.IsNullOrEmpty(mensagem))
 {
 	<div class="row mb-3">
-		@if (mensagemErro)
-		{
-			<div class="alert alert-danger">
-				@mensagem
-			</div>
-		}
-		else
-		{
-			<div class="alert alert-success">
-				@mensagem
-			</div>
+		<div class="alert alert-danger">
+			@mensagem
+		</div>
 		}
 	</div>
 }
@@ -54,7 +47,6 @@
 
 	ElementReference inputFile;
 	ImageUploaderModel imagem;
-	bool mensagemErro = false;
 	string mensagem = string.Empty;
 
 	protected override void OnInitialized()
@@ -64,22 +56,16 @@
 			imagem.SetUrl(Url);
 	}
 
-	private void SetMensagem(string mensagem, bool mensagemErro = false)
-	{
-		this.mensagem = mensagem;
-		this.mensagemErro = mensagemErro;
-	}
-
 	private async Task OpenFile()
 	{
-		SetMensagem(string.Empty);
+		mensagem = string.Empty;
 		try
 		{
 			await imagem.SetFileAsync((await fileReader.CreateReference(inputFile).EnumerateFilesAsync()).FirstOrDefault());
 		}
 		catch (Exception ex)
 		{
-			SetMensagem(ex.Message, true);
+			mensagem = ex.Message;
 		}
 	}
 
@@ -93,7 +79,7 @@
 			if (imagem.Url != string.Empty)
 				return imagem.Url;
 
-			SetMensagem("Nenhum arquivo encontrado.", true);
+			mensagem = "Nenhum arquivo encontrado.";
 			return string.Empty;
 		}
 
@@ -108,18 +94,17 @@
 				try
 				{
 					imagem.SetUrl(await uploader.Upload(content, Categoria));
-					SetMensagem("Arquivo carregado com sucesso!");
 					return imagem.Url;
 				}
 				catch (HttpResponseException ex)
 				{
-					SetMensagem($"{ex.Response.StatusCode.ToString()}", true);
+					mensagem = $"{ex.Response.StatusCode.ToString()}";
 				}
 			}
 		}
 		catch (Exception ex)
 		{
-			SetMensagem($"{ex.Message}", true);
+			mensagem = $"{ex.Message}";
 		}
 		return string.Empty;
 	}

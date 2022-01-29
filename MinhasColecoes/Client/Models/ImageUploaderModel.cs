@@ -39,10 +39,10 @@ namespace MinhasColecoes.Client.Models
 
 		public async Task SetFileAsync(IFileReference fileReference)
 		{
-			Clear();
-
 			if (fileReference == null)
 				throw new Exception("Arquivo não encontrado.");
+
+			Clear();
 
 			var fileInfo = await fileReference.ReadFileInfoAsync();
 			if (fileInfo.Size > MaxFileSize)
