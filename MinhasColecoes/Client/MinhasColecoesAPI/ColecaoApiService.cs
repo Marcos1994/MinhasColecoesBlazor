@@ -1,4 +1,5 @@
-﻿using MinhasColecoes.Shared.ViewModels;
+﻿using MinhasColecoes.Shared.InputModels;
+using MinhasColecoes.Shared.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,6 +57,17 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 				throw new HttpResponseException(response);
 
 			return await response.Content.ReadFromJsonAsync<List<ColecaoBasicVM>>();
+		}
+
+		public async Task<ColecaoVM> Create(ColecaoIM input)
+		{
+			HttpClient client = await httpService.GetClient();
+			HttpResponseMessage response = await client.PostAsJsonAsync($"Colecoes", input);
+
+			if (!response.IsSuccessStatusCode)
+				throw new HttpResponseException(response);
+
+			return await response.Content.ReadFromJsonAsync<ColecaoVM>();
 		}
 	}
 }

@@ -10,7 +10,14 @@
 	{
 		<div class="row" style="height: 200px;">
 			<div class="d-block" style="height: 200px;">
-				<img class="mx-auto d-block" style="max-width: 100%; max-height: 100%;" src="@imagem.Preview" />
+				@if (string.IsNullOrEmpty(imagem.Preview))
+				{
+					<img class="mx-auto d-block" style="max-width: 100%; max-height: 100%;" src="/img/fotos/Colecao/_foto_padrao.jpg" />
+				}
+				else
+				{
+					<img class="mx-auto d-block" style="max-width: 100%; max-height: 100%;" src="@imagem.Preview" />
+				}
 			</div>
 		</div>
 	}

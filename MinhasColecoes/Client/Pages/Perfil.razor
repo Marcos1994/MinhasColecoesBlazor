@@ -3,7 +3,7 @@
 @using MinhasColecoes.Shared.ViewModels;
 @inject UsuarioApiService usuarioService
 @inject ColecaoApiService colecaoService
-@inject NavigationManager navigationManager
+@inject NavigationManager navManager
 
 
 <div class="row">
@@ -121,13 +121,13 @@
 	protected async Task Logout()
 	{
 		await usuarioService.Logout();
-		navigationManager.NavigateTo("/");
+		navManager.NavigateTo("/");
 	}
 
 	private void BuscarColecoes(string nome = "")
 	{
 		colecoes = usuario.ColecoesMembro.Where(c => c.Nome.Contains(nome, StringComparison.OrdinalIgnoreCase)).ToList();
-		totalPaginas = Convert.ToInt32(Math.Floor(Convert.ToDouble(colecoes.Count() / itensPorPagina)))+1;
+		totalPaginas = Convert.ToInt32(Math.Floor(Convert.ToDouble(colecoes.Count() / itensPorPagina))) + 1;
 		NavegarPaginacao(1);
 	}
 
@@ -137,8 +137,8 @@
 		colecoesPaginadas = colecoes.Skip((paginaAtual - 1) * itensPorPagina).Take(itensPorPagina).ToList();
 	}
 
-	private async Task Cadastrar(string nome)
+	private async Task Cadastrar()
 	{
-
+		navManager.NavigateTo("/novacolecao");
 	}
 }

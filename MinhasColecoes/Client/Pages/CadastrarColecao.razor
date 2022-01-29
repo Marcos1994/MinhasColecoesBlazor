@@ -1,23 +1,72 @@
 ﻿@page "/novacolecao"
-@page "/novacolecao/{IdSuperColecao:int}"
 @using MinhasColecoes.Shared.InputModels
+@using MinhasColecoes.Shared.InputModels.ErrorModel;
 @inject ColecaoApiService colecaoService
+@inject NavigationManager navManager
 
-<h3>CadastrarColecao</h3>
-<ImageUploader @ref="uploader" Categoria="EnumCategoriasFotos.Colecao" />
 <div class="row">
-	<button class="btn btn-lg btn-primary" @onclick="CarregarImagem">Confirmar</button>
+	<div class="col-12 col-md-6 col-lg-4 mb-3 mb-md-0">
+		<h1>Cadastrar Coleção</h1>
+		<ImageUploader @ref="uploader" Categoria="EnumCategoriasFotos.Colecao" />
+		<ValidationError @ref="validationError" />
+		<div class="form-floating mb-3">
+			<input class="form-control" @bind="colecao.Nome" autofocus />
+			<label>Nome: </label>
+		</div>
+		<div class="form-floating mb-3">
+			<textarea class="form-control" @bind="colecao.Descricao" />
+			<label>Descrição: </label>
+		</div>
+		<div class="form-check mb-3">
+			<input class="form-check-input" type="checkbox" @bind="colecao.Publica">
+			<label class="form-check-label" for="flexCheckChecked">
+				Coleção Publica
+			</label>
+		</div>
+		<div class="text-center">
+			<button class="btn btn-lg btn-primary" @onclick="Confirmar">Confirmar</button>
+		</div>
+	</div>
 </div>
 
 @code {
 	[Parameter]
-	public int? IdSuperColecao { get; set; }
+	public string Nome { get; set; } = string.Empty;
 
+	private ValidationError validationError;
 	private ImageUploader uploader;
-	private string imgPath = string.Empty;
+	private ColecaoIM colecao;
 
-	private async Task CarregarImagem()
+	protected override void OnInitialized()
 	{
-		imgPath = await uploader.UploadFile();
+		colecao = new ColecaoIM() { Nome = Nome };
+	}
+
+	private async Task Confirmar()
+	{
+		try
+		{
+			colecao.Foto = await uploader.UploadFile();
+			int idColecao = (await colecaoService.Create(colecao)).Id;
+			navManager.NavigateTo($"/colecao/{idColecao}");
+		}
+		catch (HttpResponseException ex)
+		{
+			HttpResponseMessage response = ex.Response;
+
+			if (response.StatusCode == HttpStatusCode.BadRequest)
+			{
+				ResponseError<ColecaoEM> error = await response.Content.ReadFromJsonAsync<ResponseError<ColecaoEM>>();
+				validationError.SetValidationErrors(error.Errors.GetErrors());
+			}
+			else
+			{
+				validationError.SetMessage(response.StatusCode.ToString());
+			}
+		}
+		catch (Exception ex)
+		{
+			validationError.SetMessage(ex.Message);
+		}
 	}
 }

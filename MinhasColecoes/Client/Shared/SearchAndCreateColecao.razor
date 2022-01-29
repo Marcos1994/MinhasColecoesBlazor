@@ -1,5 +1,6 @@
 ﻿@using MinhasColecoes.Shared.ViewModels;
 @inject ColecaoApiService colecaoService
+@inject NavigationManager navManager
 
 <div class="row">
 	<div class="col-12 col-md-6 col-lg-5 col-xl-4 mb-2 mb-md-0">
@@ -89,8 +90,8 @@ else
 		}
 	}
 
-	private async Task Cadastrar(string nome)
+	private async Task Cadastrar()
 	{
-
+		navManager.NavigateTo("/novacolecao");
 	}
 }
