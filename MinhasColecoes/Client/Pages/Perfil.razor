@@ -76,7 +76,7 @@
 		<div class="row row-cols-2 row-cols-md-1 row-cols-lg-3 row-cols-xxl-4 g-3">
 			@foreach (ColecaoBasicVM c in colecoesPaginadas)
 			{
-				<CardColecao colecao="c" />
+				<CardColecao colecao="c" OnClickCallback="NavegarPara" />
 			}
 		</div>
 	</div>
@@ -140,5 +140,10 @@
 	private async Task Cadastrar()
 	{
 		navManager.NavigateTo("/novacolecao");
+	}
+
+	private async Task NavegarPara(ColecaoBasicVM colecao)
+	{
+		navManager.NavigateTo($"/colecao/{colecao.Id}");
 	}
 }

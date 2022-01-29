@@ -43,7 +43,7 @@ else
 	<div class="row row-cols-2 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-6 g-3">
 		@foreach (ColecaoBasicVM c in colecoes)
 		{
-			<CardColecao colecao="c" />
+			<CardColecao colecao="c" OnClickCallback="NavegarPara" />
 		}
 	</div>
 }
@@ -93,5 +93,10 @@ else
 	private async Task Cadastrar()
 	{
 		navManager.NavigateTo("/novacolecao");
+	}
+
+	private async Task NavegarPara(ColecaoBasicVM colecao)
+	{
+		navManager.NavigateTo($"/colecao/{colecao.Id}");
 	}
 }

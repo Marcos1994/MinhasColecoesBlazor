@@ -2,6 +2,9 @@
 @using MinhasColecoes.Shared.ViewModels;
 @using System.Net;
 @inject ColecaoApiService colecaoService
+@inject NavigationManager navManager
+
+<GenealogiaColecao IdColecaoMaior="colecao.IdColecaoMaior" OnClickCallback="NavegarPara" />
 
 <h3>Coleção @colecao.Nome</h3>
 <p>@colecao.Descricao</p>
@@ -23,6 +26,11 @@
 		{
 
 		}
+	}
+
+	private async Task NavegarPara(ColecaoBasicVM colecao)
+	{
+		navManager.NavigateTo($"/colecao/{colecao.Id}");
 	}
 
 	protected override async Task OnParametersSetAsync()

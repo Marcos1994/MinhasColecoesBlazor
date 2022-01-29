@@ -97,3 +97,9 @@ a, .btn-link {
         border-radius: 15px;
         padding: 20px;
     }
+
+    /* Geral
+    -------------------------------------------------- */
+    .card-img-top a {
+        cursor: pointer;
+    }
