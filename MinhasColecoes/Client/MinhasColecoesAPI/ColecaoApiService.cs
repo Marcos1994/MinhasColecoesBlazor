@@ -59,6 +59,17 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 			return await response.Content.ReadFromJsonAsync<List<ColecaoBasicVM>>();
 		}
 
+		public async Task<ColecaoGenealogiaVM> GetGenealogia(int idColecao)
+		{
+			HttpClient client = await httpService.GetClient();
+
+			HttpResponseMessage response = await client.GetAsync($"/Colecoes/{idColecao}/Genealogia");
+			if (!response.IsSuccessStatusCode)
+				throw new HttpResponseException(response);
+
+			return await response.Content.ReadFromJsonAsync<ColecaoGenealogiaVM>();
+		}
+
 		public async Task<ColecaoVM> Create(ColecaoIM input)
 		{
 			HttpClient client = await httpService.GetClient();

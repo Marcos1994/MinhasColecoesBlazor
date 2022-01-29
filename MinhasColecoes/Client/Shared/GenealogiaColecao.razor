@@ -1,0 +1,60 @@
+﻿@using MinhasColecoes.Shared.ViewModels
+@inject ColecaoApiService colecaoService
+
+@if (genealogia != null)
+{
+	<div class="d-flex mb-3">
+		<div class="d-flex flex-row-reverse">
+			@{
+				var c = genealogia;
+				do
+				{
+					int id = c.Id;
+					<div class="pe-2">
+						<button class="btn btn-secondary text-white btn-sm" @onclick="e => Selecionar(id)">@c.Nome</button>
+					</div>
+					c = c.ColecaoPai;
+				}
+				while (c != null);
+			}
+			<div class="pe-3"><h3>Subcoleção de</h3></div>
+		</div>
+	</div>
+}
+
+@code {
+	[Parameter]
+	public int? IdColecaoMaior { get; set; }
+
+	[Parameter]
+	public EventCallback<ColecaoBasicVM> OnClickCallback { get; set; }
+
+	private ColecaoGenealogiaVM genealogia;
+
+	protected override async Task OnParametersSetAsync()
+	{
+		if (IdColecaoMaior == null)
+			genealogia = null;
+		else if (genealogia == null || IdColecaoMaior != genealogia.Id)
+		{
+			try
+			{
+				genealogia = await colecaoService.GetGenealogia((int)IdColecaoMaior);
+			}
+			catch (HttpResponseException ex)
+			{
+
+			}
+			catch (Exception ex)
+			{
+
+			}
+		}
+	}
+
+	protected async Task Selecionar(int id)
+	{
+		ColecaoBasicVM colecao = new ColecaoBasicVM() { Id = id };
+		await OnClickCallback.InvokeAsync(colecao);
+	}
+}
