@@ -1,15 +1,14 @@
 ﻿@page "/colecao/{IdColecao:int}/cadastrarmultiplositens"
 @using MinhasColecoes.Shared.ViewModels
-@using MinhasColecoes.Shared.InputModels
 @using MinhasColecoes.Shared.InputModels.ErrorModel;
-@using System.IO
 @using Tewr.Blazor.FileReader
 @using MinhasColecoes.Client.Models
 @using MinhasColecoes.Shared.Enums
-@using System.ComponentModel.DataAnnotations
+@using System.Web
 @inject IFileReaderService fileReader
 @inject FileUploadApiService uploader
 @inject ColecaoApiService colecaoService
+@inject ItemApiService itemService
 @inject NavigationManager navManager
 
 
@@ -168,7 +167,7 @@
 						<div class="card-body">
 
 							<div class="form-floating mb-1">
-								<input type="text" class="form-control" @bind="@itemPreview.Nome" disabled="disabled"/>
+								<input type="text" class="form-control" @bind="@itemPreview.Nome" disabled="disabled" />
 								<label>Arquivo: </label>
 							</div>
 							<div class="form-floating mb-1">
@@ -187,10 +186,21 @@
 									}
 								</select>
 							</div>
-							<div class="form-floating">
+							<div class="form-floating mb-1">
 								<input type="text" class="form-control" @bind="@itemPreview.Item.Descricao" />
 								<label>Descrição: </label>
 							</div>
+							@if (itemPreview.Erros.Count > 0)
+							{
+							<div class="row mb-1 text-danger mx-auto">
+								<ul>
+									@foreach (string msg in itemPreview.Erros)
+									{
+										<li>@msg</li>
+									}
+								</ul>
+							</div>
+							}
 						</div>
 					</div>
 				</div>
@@ -211,7 +221,7 @@
 	List<string> mensagens;
 
 	private bool filtrarDadosPeloArquivo = false;
-	private bool filtrarCodigoPeloArquivo = false;
+	private bool filtrarCodigoPeloArquivo = true;
 	private bool usarRelacionamentoPadrao = true;
 	private EnumRelacaoUsuarioItem relacaoPadrao = EnumRelacaoUsuarioItem.NaoPossuo;
 	private char separador = '_';
@@ -295,29 +305,70 @@
 
 	private async Task Confirmar()
 	{
-		//try
-		//{
-		//	colecao.Foto = await uploader.UploadFile();
-		//	int idColecao = 1;// (await colecaoService.Create(colecao)).Id;
-		//	navManager.NavigateTo($"/colecao/{idColecao}");
-		//}
-		//catch (HttpResponseException ex)
-		//{
-		//	HttpResponseMessage response = ex.Response;
+		foreach (MultipleImageUploaderModel model in itens)
+		{
+			model.Erros.Clear();
 
-		//	if (response.StatusCode == HttpStatusCode.BadRequest)
-		//	{
-		//		ResponseError<ColecaoEM> error = await response.Content.ReadFromJsonAsync<ResponseError<ColecaoEM>>();
-		//		validationError.SetValidationErrors(error.Errors.GetErrors());
-		//	}
-		//	else
-		//	{
-		//		validationError.SetMessage(response.StatusCode.ToString());
-		//	}
-		//}
-		//catch (Exception ex)
-		//{
-		//	validationError.SetMessage(ex.Message);
-		//}
+			//Upload da foto
+			if (string.IsNullOrEmpty(model.Item.Foto))
+			{
+				MultipartFormDataContent content = new MultipartFormDataContent();
+				content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data");
+
+				try
+				{
+					using (var fileStream = await model.ArquivoFoto.File.CreateMemoryStreamAsync((int)model.ArquivoFoto.Tamanho))
+					{
+						StreamContent sc = new StreamContent(fileStream, (int)fileStream.Length);
+						content.Add(sc, "image", model.ArquivoFoto.Nome);
+						model.Item.Foto = await uploader.Upload(content, EnumCategoriasFotos.Item);
+					}
+				}
+				catch (HttpResponseException ex)
+				{
+					model.Erros.Add("Erro ao carregar a foto: " + ex.Response.StatusCode.ToString());
+				}
+				catch (Exception ex)
+				{
+					model.Erros.Add("Erro ao carregar a foto: " + ex.Message);
+				}
+			}
+
+			//Cadastro do item
+			if (model.Erros.Count == 0)
+			{
+				try
+				{
+					await itemService.Create(model.Item);
+				}
+				catch (HttpResponseException ex)
+				{
+					HttpResponseMessage response = ex.Response;
+
+					if (response.StatusCode == HttpStatusCode.BadRequest)
+					{
+						try
+						{
+							ResponseError<ItemEM> error = await response.Content.ReadFromJsonAsync<ResponseError<ItemEM>>();
+							model.Erros.Add("Erro ao criar o item:");
+							foreach (ValidatorEM erro in error.Errors.GetErrors())
+							{
+								model.Erros.Add($"{erro.Propriedade}: {string.Join(';', erro.Mensagens)}");
+							}
+						}
+						catch
+						{
+							model.Erros.Add($"Erro ao criar o item ({response.StatusCode.ToString()}): {response.ReasonPhrase}");
+						}
+					}
+				}
+				catch (Exception ex)
+				{
+					model.Erros.Add("Erro ao criar o item: " + ex.Message);
+				}
+			}
+		}
+
+		itens.RemoveAll(i => i.Erros.Count == 0);
 	}
 }
