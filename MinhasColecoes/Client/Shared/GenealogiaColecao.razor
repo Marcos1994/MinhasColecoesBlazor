@@ -17,7 +17,10 @@
 				}
 				while (c != null);
 			}
-			<div class="pe-3"><h3>Subcoleção de</h3></div>
+			@if (!string.IsNullOrEmpty(Mensagem))
+			{
+				<div class="pe-3"><h3>@Mensagem</h3></div>
+			}
 		</div>
 	</div>
 }
@@ -25,6 +28,9 @@
 @code {
 	[Parameter]
 	public int? IdColecaoMaior { get; set; }
+
+	[Parameter]
+	public string Mensagem { get; set; } = "Subcoleção de";
 
 	[Parameter]
 	public EventCallback<ColecaoBasicVM> OnClickCallback { get; set; }

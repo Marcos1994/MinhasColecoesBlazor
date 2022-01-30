@@ -1,0 +1,323 @@
+﻿@page "/colecao/{IdColecao:int}/cadastrarmultiplositens"
+@using MinhasColecoes.Shared.ViewModels
+@using MinhasColecoes.Shared.InputModels
+@using MinhasColecoes.Shared.InputModels.ErrorModel;
+@using System.IO
+@using Tewr.Blazor.FileReader
+@using MinhasColecoes.Client.Models
+@using MinhasColecoes.Shared.Enums
+@using System.ComponentModel.DataAnnotations
+@inject IFileReaderService fileReader
+@inject FileUploadApiService uploader
+@inject ColecaoApiService colecaoService
+@inject NavigationManager navManager
+
+
+
+<div class="row">
+	<div class="col-12 col-lg-4 mb-3 mb-md-0">
+		<h3>Adicionar itens à coleção:</h3>
+		<GenealogiaColecao IdColecaoMaior="IdColecao" Mensagem="" />
+		<div class="row mb-3">
+			<div class="form-group">
+				<input type="file" @ref="inputFile" @onchange="async () => await CarregarArquivos()" accept="image/*" multiple />
+			</div>
+		</div>
+		@if (mensagens.Count > 0)
+		{
+			<div class="row mb-3">
+				<div class="alert alert-danger">
+					<ul>
+						@foreach (string msg in mensagens)
+						{
+							<li>@msg</li>
+						}
+					</ul>
+				</div>
+			</div>
+		}
+		<div class="form-check form-switch mb-3">
+			<input class="form-check-input" type="checkbox" @bind="@filtrarDadosPeloArquivo">
+			<label class="form-check-label">Filtrar dados pelo arquivo</label>
+		</div>
+		@if (filtrarDadosPeloArquivo)
+		{
+			@if (itens.Count == 0)
+			{
+				<p>Selecione pelo menos um arquivo para continuar</p>
+			}
+			else
+			{
+				<div class="form-floating mb-3">
+					<input type="text" class="form-control" @bind="@itens[0].Nome" disabled="disabled" />
+					<label>Nome do arquivo: </label>
+				</div>
+
+				<div class="input-group mb-3">
+					<div class="input-group-prepend">
+						<span class="input-group-text">Substituir</span>
+					</div>
+					<input type="text" class="form-control" maxlength="1" @bind="substituirDe">
+					<div class="input-group-prepend">
+						<span class="input-group-text">Por</span>
+					</div>
+					<input type="text" class="form-control" maxlength="1" @bind="substituirPara">
+				</div>
+
+				<div class="row mb-3">
+					<div class="text-center mx-auto">
+						<button class="btn btn-secondary btn-sm" @onclick="SubstituirCaracteres">Substituir caracteres no nome do arquivo</button>
+					</div>
+				</div>
+
+				<div class="form-group mb-3">
+					<label>Escolha um separador</label>
+					<select class="form-control" @bind="@separador">
+						<option value="_">_ [Underline]</option>
+						<option value=";">; [Ponto e Virgula]</option>
+						<option value="-">- [Traço]</option>
+						<option value=" ">[Espaço]</option>
+					</select>
+				</div>
+
+				<div class="input-group mb-3">
+					<div class="input-group-prepend">
+						<span class="input-group-text">Indice do inicio do nome</span>
+					</div>
+					<input type="number" class="form-control" maxlength="1" @bind="indiceInicioNome" min="1" max="99">
+				</div>
+
+				<div class="input-group mb-3">
+					<div class="input-group-prepend">
+						<span class="input-group-text">Indice inverso do final do nome</span>
+					</div>
+					<input type="number" class="form-control" maxlength="1" @bind="indiceFinalNome" min="1" max="99">
+				</div>
+
+				<div class="form-floating mb-3">
+					<input type="text" class="form-control" @bind="@itens[0].Item.Nome" disabled="disabled" />
+					<label>Nome: </label>
+				</div>
+
+				<div class="form-check form-switch mb-3">
+					<input class="form-check-input" type="checkbox" @bind="@filtrarCodigoPeloArquivo">
+					<label class="form-check-label">Filtrar código no nome do arquivo</label>
+				</div>
+				@if (filtrarCodigoPeloArquivo)
+				{
+					<div class="input-group mb-3">
+						<div class="input-group-prepend">
+							<span class="input-group-text">Indice</span>
+						</div>
+						<input type="number" class="form-control" maxlength="1" @bind="indiceDoCodigo" min="1" max="99">
+						<div class="input-group-prepend">
+							<span class="input-group-text">Cod.</span>
+						</div>
+						<input type="text" class="form-control" maxlength="1" @bind="@itens[0].Item.Codigo" disabled="disabled">
+					</div>
+				}
+			}
+		}
+		else
+		{
+			<div class="form-check form-switch mb-3">
+				<input class="form-check-input" type="checkbox" @bind="@usarRelacionamentoPadrao">
+				<label class="form-check-label">Usar este relacionamento para todos os itens</label>
+			</div>
+			@if (usarRelacionamentoPadrao)
+			{
+				<div class="form-group mb-3">
+					<select class="form-control" @bind="@relacaoPadrao">
+						@foreach (var relacao in Enum.GetValues(typeof(EnumRelacaoUsuarioItem)))
+						{
+							<option value="@relacao">@relacao</option>
+						}
+					</select>
+				</div>
+			}
+		}
+		<div class="row">
+			<div class="col">
+				<div class="text-center mx-auto">
+					<button class="btn btn-secondary" @onclick="AtualizarItens">Atualizar Dados</button>
+				</div>
+			</div>
+			<div class="col">
+				<div class="text-center mx-auto">
+					<button class="btn btn-primary" @onclick="Confirmar">Confirmar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-12 col-lg-8 mb-3">
+		<div class="row">
+			<h1>Pré-visualização</h1>
+		</div>
+		<div class="row row-cols-2 row-cols-xl-3">
+			@foreach (var itemPreview in itens)
+			{
+				<div class="col mb-3">
+					<div class="card h-100 shadow rounded-3">
+						<div class="card-img-top position-relative" style="height: 120px;">
+							<a class="card-img-top bg-secondary" style="height: 150px;">
+								<img src="@itemPreview.ArquivoFoto.Preview" alt="@itemPreview.ArquivoFoto.Nome"
+									 class="mx-auto d-block" style="max-width: 100%; max-height: 100%;">
+							</a>
+						</div>
+						<div class="card-body">
+
+							<div class="form-floating mb-1">
+								<input type="text" class="form-control" @bind="@itemPreview.Nome" disabled="disabled"/>
+								<label>Arquivo: </label>
+							</div>
+							<div class="form-floating mb-1">
+								<input type="text" class="form-control" @bind="@itemPreview.Item.Nome" />
+								<label>Nome: </label>
+							</div>
+							<div class="form-floating mb-1">
+								<input type="text" class="form-control" @bind="@itemPreview.Item.Codigo" />
+								<label>Código: </label>
+							</div>
+							<div class="form-group mb-1">
+								<select class="form-control" @bind="@itemPreview.Item.Relacao">
+									@foreach (var relacao in Enum.GetValues(typeof(EnumRelacaoUsuarioItem)))
+									{
+										<option value="@relacao">@relacao</option>
+									}
+								</select>
+							</div>
+							<div class="form-floating">
+								<input type="text" class="form-control" @bind="@itemPreview.Item.Descricao" />
+								<label>Descrição: </label>
+							</div>
+						</div>
+					</div>
+				</div>
+			}
+		</div>
+	</div>
+</div>
+
+
+@code {
+	[Parameter]
+	public int IdColecao { get; set; }
+
+	private ColecaoVM colecao = new ColecaoVM();
+
+	ElementReference inputFile;
+	List<MultipleImageUploaderModel> itens;
+	List<string> mensagens;
+
+	private bool filtrarDadosPeloArquivo = false;
+	private bool filtrarCodigoPeloArquivo = false;
+	private bool usarRelacionamentoPadrao = true;
+	private EnumRelacaoUsuarioItem relacaoPadrao = EnumRelacaoUsuarioItem.NaoPossuo;
+	private char separador = '_';
+	private char substituirDe = '-';
+	private char substituirPara = ' ';
+	private int indiceInicioNome = 2;
+	private int indiceFinalNome = 1;
+	private int indiceDoCodigo = 1;
+
+	protected override async Task OnParametersSetAsync()
+	{
+		mensagens = new List<string>();
+		itens = new List<MultipleImageUploaderModel>();
+		try
+		{
+			colecao = await colecaoService.GetById(IdColecao);
+		}
+		catch (Exception ex)
+		{
+
+		}
+	}
+
+	private async Task CarregarArquivos()
+	{
+		mensagens.Clear();
+		itens.Clear();
+		IEnumerable<IFileReference> arquivos = await fileReader.CreateReference(inputFile).EnumerateFilesAsync();
+		foreach (IFileReference arquivo in arquivos)
+		{
+			try
+			{
+				ImageUploaderModel imagem = new ImageUploaderModel(EnumCategoriasFotos.Item, uploader.GetBaseUrl());
+				await imagem.SetFileAsync(arquivo);
+				itens.Add(new MultipleImageUploaderModel(IdColecao, imagem));
+			}
+			catch (Exception ex)
+			{
+				if (mensagens.Count == 0)
+					mensagens.Add("Erro ao ler os seguintes arquivos:");
+				mensagens.Add((await arquivo.ReadFileInfoAsync()).Name + ": " + ex.Message);
+			}
+		}
+		AtualizarItens();
+	}
+
+	private void SubstituirCaracteres()
+	{
+		mensagens.Clear();
+		if (substituirDe == '\0' || substituirPara == '\0')
+		{
+			mensagens.Add("Os caracteres a serem substituídos não podem ser vazios.");
+			return;
+		}
+		foreach (MultipleImageUploaderModel model in itens)
+		{
+			string[] nomeArray = model.Nome.Split(substituirDe);
+			model.Nome = string.Join(substituirPara, nomeArray);
+		}
+	}
+
+	private void AtualizarItens()
+	{
+		mensagens.Clear();
+		foreach (MultipleImageUploaderModel model in itens)
+		{
+			string[] nomeArray = model.Nome.Split(separador);
+
+			int quantidadePalavras = nomeArray.Length - (indiceInicioNome + indiceFinalNome - 2);
+			if (quantidadePalavras > 0 && quantidadePalavras <= nomeArray.Length)
+				model.Item.Nome = string.Join(' ', nomeArray, indiceInicioNome-1, quantidadePalavras);
+			else
+				mensagens.Add($"O nome do arquivo \"{model.Nome}\" ficaria com {quantidadePalavras} palavras.");
+
+			if (indiceDoCodigo > 0 && indiceDoCodigo <= nomeArray.Length)
+				model.Item.Codigo = nomeArray[indiceDoCodigo - 1];
+			else
+				mensagens.Add($"O código do arquivo \"{model.Nome}\" não foi encontrado.");
+		}
+	}
+
+	private async Task Confirmar()
+	{
+		//try
+		//{
+		//	colecao.Foto = await uploader.UploadFile();
+		//	int idColecao = 1;// (await colecaoService.Create(colecao)).Id;
+		//	navManager.NavigateTo($"/colecao/{idColecao}");
+		//}
+		//catch (HttpResponseException ex)
+		//{
+		//	HttpResponseMessage response = ex.Response;
+
+		//	if (response.StatusCode == HttpStatusCode.BadRequest)
+		//	{
+		//		ResponseError<ColecaoEM> error = await response.Content.ReadFromJsonAsync<ResponseError<ColecaoEM>>();
+		//		validationError.SetValidationErrors(error.Errors.GetErrors());
+		//	}
+		//	else
+		//	{
+		//		validationError.SetMessage(response.StatusCode.ToString());
+		//	}
+		//}
+		//catch (Exception ex)
+		//{
+		//	validationError.SetMessage(ex.Message);
+		//}
+	}
+}
