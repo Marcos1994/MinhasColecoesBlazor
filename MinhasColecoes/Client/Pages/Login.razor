@@ -1,6 +1,5 @@
 ﻿@page "/login"
 @using MinhasColecoes.Shared.InputModels;
-@using MinhasColecoes.Shared.InputModels.ErrorModel;
 @using MinhasColecoes.Shared.ViewModels;
 @inject NavigationManager navManager
 @inject UsuarioApiService usuarioService
@@ -40,10 +39,10 @@
 
 			if (response.StatusCode == HttpStatusCode.NotFound)
 				validationError.SetMessage("Combinação de Login e Senha não encontrada.");
-			else if (response.StatusCode == HttpStatusCode.BadRequest)
+			else
 			{
-				ResponseError<UsuarioLoginEM> error = await response.Content.ReadFromJsonAsync<ResponseError<UsuarioLoginEM>>();
-				validationError.SetValidationErrors(error.Errors.GetErrors());
+				ValidationErrorModel erros = await response.Content.ReadFromJsonAsync<ValidationErrorModel>();
+				validationError.SetValidationErrors(erros);
 			}
 		}
 	}

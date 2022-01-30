@@ -1,7 +1,6 @@
 ﻿@page "/novacolecao"
 @using MinhasColecoes.Shared.ViewModels
 @using MinhasColecoes.Shared.InputModels
-@using MinhasColecoes.Shared.InputModels.ErrorModel;
 @inject ColecaoApiService colecaoService
 @inject NavigationManager navManager
 
@@ -107,15 +106,11 @@
 		{
 			HttpResponseMessage response = ex.Response;
 
-			if (response.StatusCode == HttpStatusCode.BadRequest)
-			{
-				ResponseError<ColecaoEM> error = await response.Content.ReadFromJsonAsync<ResponseError<ColecaoEM>>();
-				validationError.SetValidationErrors(error.Errors.GetErrors());
-			}
+			ValidationErrorModel erros = await response.Content.ReadFromJsonAsync<ValidationErrorModel>();
+			if(erros.Errors.Count == 0)
+				validationError.SetMessage($"{response.StatusCode.ToString()}: {erros.Title}");
 			else
-			{
-				validationError.SetMessage(response.StatusCode.ToString());
-			}
+				validationError.SetValidationErrors(erros);
 		}
 		catch (Exception ex)
 		{

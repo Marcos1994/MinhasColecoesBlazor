@@ -1,6 +1,5 @@
 ﻿@page "/colecao/{IdColecao:int}/cadastrarmultiplositens"
 @using MinhasColecoes.Shared.ViewModels
-@using MinhasColecoes.Shared.InputModels.ErrorModel;
 @using Tewr.Blazor.FileReader
 @using MinhasColecoes.Client.Models
 @using MinhasColecoes.Shared.Enums
@@ -345,21 +344,11 @@
 				{
 					HttpResponseMessage response = ex.Response;
 
-					if (response.StatusCode == HttpStatusCode.BadRequest)
+					ValidationErrorModel erros = await response.Content.ReadFromJsonAsync<ValidationErrorModel>();
+					model.Erros.Add($"{response.StatusCode.ToString()}: {erros.Title}");
+					foreach (var erro in erros.Errors)
 					{
-						try
-						{
-							ResponseError<ItemEM> error = await response.Content.ReadFromJsonAsync<ResponseError<ItemEM>>();
-							model.Erros.Add("Erro ao criar o item:");
-							foreach (ValidatorEM erro in error.Errors.GetErrors())
-							{
-								model.Erros.Add($"{erro.Propriedade}: {string.Join(';', erro.Mensagens)}");
-							}
-						}
-						catch
-						{
-							model.Erros.Add($"Erro ao criar o item ({response.StatusCode.ToString()}): {response.ReasonPhrase}");
-						}
+						model.Erros.Add($"{erro.Key}: {string.Join(';', erro.Value)}");
 					}
 				}
 				catch (Exception ex)

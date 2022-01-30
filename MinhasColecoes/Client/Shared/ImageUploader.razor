@@ -98,7 +98,10 @@
 				}
 				catch (HttpResponseException ex)
 				{
-					mensagem = $"{ex.Response.StatusCode.ToString()}";
+					HttpResponseMessage response = ex.Response;
+
+					ValidationErrorModel erros = await response.Content.ReadFromJsonAsync<ValidationErrorModel>();
+					mensagem = $"{response.StatusCode.ToString()}: {erros.Title}";
 				}
 			}
 		}
