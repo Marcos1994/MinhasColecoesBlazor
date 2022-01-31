@@ -1,10 +1,10 @@
 ﻿@using MinhasColecoes.Shared.ViewModels;
-@inject ColecaoApiService colecaoService
+@inject ItemApiService itemService
 @inject NavigationManager navManager
 
 <div class="row">
 	<div class="col-12 col-md-6 col-lg-5 col-xl-4 mb-2 mb-md-0">
-		<SearchAndCreateBar Mensagem="@mensagemParametro" OnClickBuscarCallback="BuscarColecoes" OnClickCadastrarCallback="Cadastrar" />
+		<SearchAndCreateBar Mensagem="@mensagemParametro" OnClickBuscarCallback="BuscarItens" OnClickCadastrarCallback="Cadastrar" />
 	</div>
 	<div class="col-12 col-md-6 col-lg-7 col-xl-8 mb-3 mb-md-0">
 		<div class="d-flex flex-row-reverse justify-content-center justify-content-lg-start">
@@ -27,7 +27,7 @@
 	</div>
 </div>
 
-@if (colecoes == null)
+@if (itens == null)
 {
 	if (status == null)
 	{
@@ -40,10 +40,10 @@
 }
 else
 {
-	<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-6 g-3">
-		@foreach (ColecaoBasicVM c in colecoes)
+	<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5 g-3">
+		@foreach (ItemBasicVM i in itens)
 		{
-			<CardColecao colecao="c" OnClickCallback="NavegarPara" />
+			<CardItem Item="i" OnSelectCallback="AtualizarRelacionamentoItem" Editavel="true" />
 		}
 	</div>
 }
@@ -61,28 +61,39 @@ else
 
 @code {
 	[Parameter]
-	public int? IdColecaoPrincipal { get; set; } = null;
+	public int IdColecao { get; set; }
 
 	public int QuantidadePorPagina { get; set; } = 25;
 
-	private List<ColecaoBasicVM> colecoes;
+	private List<ItemBasicVM> itens;
 	private HttpStatusCode? status;
 	private int totalPaginas = 0;
 	private int paginaAtual = 0;
-	private string mensagemParametro = "Nome da Coleção";
-	private string nomeColecao = "";
+	private string mensagemParametro = "Nome do item";
 
 	protected override async Task OnParametersSetAsync()
 	{
-		colecoes = null;
-		await BuscarColecoes();
+		itens = null;
+		await BuscarItens();
 	}
 
-	private async Task BuscarColecoes(string nome = "")
+	private async Task BuscarItens(string nome = "")
 	{
 		try
 		{
-			colecoes = await colecaoService.GetByName(nome, IdColecaoPrincipal);
+			itens = await itemService.GetByNome(IdColecao, nome);
+		}
+		catch (HttpResponseException ex)
+		{
+			status = ex.Response.StatusCode;
+		}
+	}
+
+	private async Task AtualizarRelacionamentoItem(ItemBasicVM item)
+	{
+		try
+		{
+			await itemService.AtualizarRelacionamento(item);
 		}
 		catch (HttpResponseException ex)
 		{
@@ -92,11 +103,11 @@ else
 
 	private async Task Cadastrar()
 	{
-		navManager.NavigateTo("/novacolecao");
+
 	}
 
 	private async Task NavegarPara(ColecaoBasicVM colecao)
 	{
-		navManager.NavigateTo($"/colecao/{colecao.Id}");
+
 	}
 }

@@ -24,7 +24,7 @@ namespace MinhasColecoes.Client
 			builder.Services.AddOptions();
 			builder.Services.AddAuthorizationCore();
 
-			bool apiDebug = true;
+			bool apiDebug = false;
 			builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:" + ((apiDebug)? "44308" : "5001")) });
 			//builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 

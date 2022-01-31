@@ -1,0 +1,91 @@
+﻿@using MinhasColecoes.Shared.ViewModels;
+@using MinhasColecoes.Shared.Enums
+@inject HttpService httpService
+
+<div class="col">
+	<div class="card h-100 shadow rounded-3">
+		<div class="card-img-top position-relative" style="height: 200px;">
+			@if (!Item.Original)
+			{
+				<a class="position-absolute end-0 top-0 p-2 text-secondary bg-white rounded-top">
+					<i class="bi-files" title="Item Particular"
+					   style="font-size: 20px; line-height: 20px;"></i>
+				</a>
+			}
+			<a class="position-absolute end-0 bottom-0 p-2 text-secondary bg-white rounded-top">
+				@switch (Item.Relacao)
+				{
+					case EnumRelacaoUsuarioItem.Desejo:
+						<i class="bi-heart" title="Desejo" style="font-size: 20px; line-height: 20px;"></i>
+						break;
+					case EnumRelacaoUsuarioItem.AguardandoRecebimento:
+						<i class="bi-heart-half" title="Aguardando Recebimento" style="font-size: 20px; line-height: 20px;"></i>
+						break;
+					case EnumRelacaoUsuarioItem.Possuo:
+						<i class="bi-heart-fill" title="Desejo" style="font-size: 20px; line-height: 20px;"></i>
+						break;
+					case EnumRelacaoUsuarioItem.Trocar:
+						<i class="bi-arrow-left-right" title="Disponível para troca" style="font-size: 20px; line-height: 20px;"></i>
+						break;
+					case EnumRelacaoUsuarioItem.Vender:
+						<i class="bi-currency-dollar" title="Disponível para venda" style="font-size: 20px; line-height: 20px;"></i>
+						break;
+					case EnumRelacaoUsuarioItem.JaPossui:
+						<i class="bi-hourglass" title="Já possuí" style="font-size: 20px; line-height: 20px;"></i>
+						break;
+					default:
+						<i class="bi-x-circle" title="Desejo" style="font-size: 20px; line-height: 20px;"></i>
+						break;
+				}
+			</a>
+			<a @onclick="OnClick" class="card-img-top bg-secondary" style="height: 200px;">
+				<img src="@(httpService.BaseUrl + Item.Foto)" alt="@Item.Nome"
+					 class="mx-auto d-block" style="max-width: 100%; max-height: 100%;">
+			</a>
+		</div>
+		<div class="card-header">
+			<div class="form-group">
+				<select class="form-control" @onchange="OnSelect" disabled="@(!Editavel)">
+					<option selected>Alterar Relacionamento</option>
+					<option value="@((int)EnumRelacaoUsuarioItem.NaoPossuo)">Não Possuo</option>
+					<option value="@((int)EnumRelacaoUsuarioItem.Desejo)">Desejo</option>
+					<option value="@((int)EnumRelacaoUsuarioItem.AguardandoRecebimento)">Aguardando receber</option>
+					<option value="@((int)EnumRelacaoUsuarioItem.Possuo)">Possuo</option>
+					<option value="@((int)EnumRelacaoUsuarioItem.Trocar)">Disponível para trocar</option>
+					<option value="@((int)EnumRelacaoUsuarioItem.Vender)">Disponível para vender</option>
+					<option value="@((int)EnumRelacaoUsuarioItem.JaPossui)">Já tive</option>
+				</select>
+			</div>
+		</div>
+		<div class="card-body">
+			<h6 class="card-title truncate-2l text-center">@Item.CodigoNome</h6>
+		</div>
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public ItemBasicVM Item { get; set; }
+
+	[Parameter]
+	public bool Editavel { get; set; } = false;
+
+	[Parameter]
+	public EventCallback<ItemBasicVM> OnClickCallback { get; set; }
+
+	[Parameter]
+	public EventCallback<ItemBasicVM> OnSelectCallback { get; set; }
+
+	protected async Task OnClick()
+	{
+		await OnClickCallback.InvokeAsync(Item);
+	}
+
+	protected async Task OnSelect(ChangeEventArgs e)
+	{
+		if (e.Value == null)
+			return;
+		Item.Relacao = (EnumRelacaoUsuarioItem)Convert.ToInt32(e.Value);
+		await OnSelectCallback.InvokeAsync(Item);
+	}
+}

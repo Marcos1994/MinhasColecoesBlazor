@@ -28,5 +28,27 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 
 			return await response.Content.ReadFromJsonAsync<ItemVM>();
 		}
+
+		public async Task AtualizarRelacionamento(ItemBasicVM input)
+		{
+			HttpClient client = await httpService.GetClient();
+			HttpResponseMessage response = await client.PutAsJsonAsync($"Itens/{input.Id}/Relacao?relacao={(int)input.Relacao}", input.Relacao);
+
+			if (!response.IsSuccessStatusCode)
+				throw new HttpResponseException(response);
+		}
+
+		public async Task<List<ItemBasicVM>> GetByNome(int idColecao, string nome = "")
+		{
+			HttpClient client = await httpService.GetClient();
+
+			string parametro = (nome.Length > 0) ? $"?nome={nome}" : "";
+			HttpResponseMessage response = await client.GetAsync($"/Itens/{idColecao}/PorNome{parametro}");
+
+			if (!response.IsSuccessStatusCode)
+				throw new HttpResponseException(response);
+
+			return await response.Content.ReadFromJsonAsync<List<ItemBasicVM>>();
+		}
 	}
 }

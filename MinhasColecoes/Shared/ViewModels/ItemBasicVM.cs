@@ -19,5 +19,13 @@ namespace MinhasColecoes.Shared.ViewModels
 		public EnumRelacaoUsuarioItem Relacao { get; set; }
 		public string Comentario { get; set; }
 		public string Foto { get; set; }
+
+		public string CodigoNome
+		{
+			get
+			{
+				return ((string.IsNullOrEmpty(Codigo)) ? "" : Codigo + ": " ) + Nome;
+			}
+		}
 	}
 }
