@@ -15,7 +15,7 @@
 <div class="row">
 	<div class="col-12 col-lg-4 mb-3 mb-md-0">
 		<h3>Adicionar itens à coleção:</h3>
-		<GenealogiaColecao IdColecaoMaior="IdColecao" Mensagem="" />
+		<GenealogiaColecao IdColecaoMaior="IdColecao" Mensagem="" OnClickCallback="NavegarPara" />
 		<div class="row mb-3">
 			<div class="form-group">
 				<input type="file" @ref="inputFile" @onchange="async () => await CarregarArquivos()" accept="image/*" multiple />
@@ -23,7 +23,7 @@
 		</div>
 		@if (mensagens.Count > 0)
 		{
-			<div class="row mb-3">
+			<div class="row mx-auto mb-3">
 				<div class="alert alert-danger">
 					<ul>
 						@foreach (string msg in mensagens)
@@ -136,12 +136,12 @@
 		}
 		<div class="row">
 			<div class="col">
-				<div class="text-center mx-auto">
-					<button class="btn btn-secondary" @onclick="AtualizarItens">Atualizar Dados</button>
+				<div class="text-center mx-auto d-flex">
+					<button class="btn btn-secondary" @onclick="@(e => AtualizarItens(true))">Atualizar Dados</button>
 				</div>
 			</div>
 			<div class="col">
-				<div class="text-center mx-auto">
+				<div class="text-center mx-auto d-flex flex-row-reverse">
 					<button class="btn btn-primary" @onclick="Confirmar">Confirmar</button>
 				</div>
 			</div>
@@ -264,7 +264,7 @@
 				mensagens.Add((await arquivo.ReadFileInfoAsync()).Name + ": " + ex.Message);
 			}
 		}
-		AtualizarItens();
+		AtualizarItens(false);
 	}
 
 	private void SubstituirCaracteres()
@@ -282,9 +282,10 @@
 		}
 	}
 
-	private void AtualizarItens()
+	private void AtualizarItens(bool limparMensagens)
 	{
-		mensagens.Clear();
+		if(limparMensagens)
+			mensagens.Clear();
 		foreach (MultipleImageUploaderModel model in itens)
 		{
 			string[] nomeArray = model.Nome.Split(separador);
@@ -359,5 +360,10 @@
 		}
 
 		itens.RemoveAll(i => i.Erros.Count == 0);
+	}
+
+	private async Task NavegarPara(ColecaoBasicVM colecao)
+	{
+		navManager.NavigateTo($"/colecao/{colecao.Id}");
 	}
 }
