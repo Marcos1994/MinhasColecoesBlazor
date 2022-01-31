@@ -45,7 +45,7 @@
 		</div>
 		<div class="card-header">
 			<div class="form-group">
-				<select class="form-control" @onchange="OnSelect" disabled="@(!Editavel)">
+				<select class="form-control" value="@((int)Item.Relacao)" @onchange="OnSelect" disabled="@(!Editavel)">
 					<option selected>Alterar Relacionamento</option>
 					<option value="@((int)EnumRelacaoUsuarioItem.NaoPossuo)">Não Possuo</option>
 					<option value="@((int)EnumRelacaoUsuarioItem.Desejo)">Desejo</option>
