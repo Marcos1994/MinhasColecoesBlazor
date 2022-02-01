@@ -7,7 +7,10 @@
 	</div>
 	<div class="col-12 col-lg-6 col-xl-7">
 		<div class="d-flex flex-row-reverse justify-content-center justify-content-lg-start">
-			<form class="d-inline-block">
+			<div class="col-auto">
+				<GerenciadorDeColunas QuantidadeMaximaDeColunas="QuantidadeMaximaDeColunas" OnChangeDistribuicaoCallback="AjustarColunas" />
+			</div>
+			<form class="d-inline-block mx-3">
 				<select class="form-select form-select-sm" @bind="QuantidadePorPagina">
 					<option value="25">25 por página</option>
 					<option value="50">50 por página</option>
@@ -18,7 +21,7 @@
 			</form>
 			@if (totalPaginas > 1)
 			{
-				<nav class="d-inline-block me-3">
+				<nav class="d-inline-block">
 					<Paginacao TotalPaginas="totalPaginas" PaginaAtual="paginaAtual" />
 				</nav>
 			}
@@ -39,7 +42,7 @@
 }
 else
 {
-	<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-6 g-3">
+	<div class="row @(distribuicaoDasColunas) g-3">
 		@foreach (ColecaoBasicVM c in colecoes)
 		{
 			<CardColecao colecao="c" OnClickCallback="NavegarPara" />
@@ -62,6 +65,10 @@ else
 	[Parameter]
 	public int? IdColecaoPrincipal { get; set; } = null;
 
+	[Parameter]
+	public int QuantidadeMaximaDeColunas { get; set; } = 6;
+	private string distribuicaoDasColunas = "row-cols-1";
+
 	public int QuantidadePorPagina { get; set; } = 25;
 
 	private List<ColecaoBasicVM> colecoes;
@@ -75,6 +82,11 @@ else
 	{
 		colecoes = null;
 		await BuscarColecoes();
+	}
+
+	private void AjustarColunas(string distribuicaoDasColunas)
+	{
+		this.distribuicaoDasColunas = distribuicaoDasColunas;
 	}
 
 	private async Task BuscarColecoes(string nome = "")

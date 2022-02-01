@@ -1,0 +1,43 @@
+﻿<select class="form-select form-select-sm" value="@(quantidadeDeColunas)" @onchange="DefinirQuantidade">
+	@for (int i = QuantidadeMaximaDeColunas; i > 0; i--)
+	{
+		<option value="@(i)">@i Colunas</option>
+	}
+</select>
+
+@code {
+	[Parameter]
+	public int QuantidadeMaximaDeColunas { get; set; } = 6;
+
+	[Parameter]
+	public EventCallback<int> OnChangeQuantidadeCallback { get; set; }
+
+	[Parameter]
+	public EventCallback<string> OnChangeDistribuicaoCallback { get; set; }
+
+	private int quantidadeDeColunas = 1;
+	private string[] breakpoints = { "xxl", "xl", "lg", "md", "sm", };
+
+	protected override async Task OnInitializedAsync()
+	{
+		await AjustarQuantidades(Math.Clamp(QuantidadeMaximaDeColunas, 1, 6));
+	}
+
+	private async Task DefinirQuantidade(ChangeEventArgs e)
+	{
+		int quantidade;
+		if (Int32.TryParse(e.Value.ToString(), out quantidade))
+			await AjustarQuantidades(quantidade);
+
+	}
+
+	private async Task AjustarQuantidades(int quantidade)
+	{
+		quantidadeDeColunas = quantidade;
+		string distribuicao = "row-cols-1";
+		for (int i = 0; i < quantidadeDeColunas - 1; i++)
+			distribuicao += $" row-cols-{breakpoints[i]}-{quantidadeDeColunas - i}";
+		await OnChangeDistribuicaoCallback.InvokeAsync(distribuicao);
+		await OnChangeQuantidadeCallback.InvokeAsync(quantidadeDeColunas);
+	}
+}
