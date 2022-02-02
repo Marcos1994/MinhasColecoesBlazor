@@ -14,18 +14,18 @@
 									  OnChangeQuantidadeCallback="AjustarTamanhoDosItens" />
 			</div>
 			<form class="d-inline-block mx-3">
-				<select class="form-select form-select-sm" @bind="QuantidadePorPagina">
-					<option value="25">25 por página</option>
-					<option value="50">50 por página</option>
-					<option value="100">100 por página</option>
-					<option value="200">200 por página</option>
-					<option value="300">300 por página</option>
+				<select class="form-select form-select-sm" value="@(quantidadePorPagina)" @onchange="SetQuantidadePorPagina">
+					<option value="20">20 por página</option>
+					<option value="40">40 por página</option>
+					<option value="80">80 por página</option>
+					<option value="160">160 por página</option>
+					<option value="320">320 por página</option>
 				</select>
 			</form>
 			@if (totalPaginas > 1)
 			{
 				<nav class="d-inline-block">
-					<Paginacao TotalPaginas="totalPaginas" PaginaAtual="paginaAtual" />
+					<Paginacao TotalPaginas="totalPaginas" PaginaAtual="paginaAtual" OnClickCallback="SetPaginaAtual" />
 				</nav>
 			}
 		</div>
@@ -46,7 +46,7 @@
 else
 {
 	<div class="row @(distribuicaoDasColunas) g-3">
-		@foreach (ColecaoBasicVM c in colecoes)
+		@foreach (ColecaoBasicVM c in colecoesPagina)
 		{
 			<CardColecao colecao="c" TamanhoDaImagem="tamanhoDosCards" OnClickCallback="NavegarPara" />
 		}
@@ -74,12 +74,12 @@ else
 	private string distribuicaoDasColunas = "row-cols-1";
 	private int tamanhoDosCards = 200;
 
-	public int QuantidadePorPagina { get; set; } = 25;
-
 	private List<ColecaoBasicVM> colecoes;
+	private List<ColecaoBasicVM> colecoesPagina = new List<ColecaoBasicVM>();
 	private HttpStatusCode? status;
 	private int totalPaginas = 0;
 	private int paginaAtual = 0;
+	private int quantidadePorPagina = 20;
 	private string mensagemParametro = "Nome da Coleção";
 	private string nomeColecao = "";
 
@@ -87,6 +87,21 @@ else
 	{
 		colecoes = null;
 		await BuscarColecoes();
+	}
+
+	protected void SetQuantidadePorPagina(ChangeEventArgs e)
+	{
+		quantidadePorPagina = 20;
+		Int32.TryParse(e.Value.ToString(), out quantidadePorPagina);
+		PaginarColecoes();
+	}
+
+	private void SetPaginaAtual(int paginaAtual)
+	{
+		this.paginaAtual = paginaAtual;
+		colecoesPagina = colecoes
+			.Skip(quantidadePorPagina * (paginaAtual - 1))
+			.Take(quantidadePorPagina).ToList();
 	}
 
 	private void AjustarColunas(string distribuicaoDasColunas)
@@ -104,6 +119,7 @@ else
 		try
 		{
 			colecoes = await colecaoService.GetByName(nome, IdColecaoPrincipal);
+			PaginarColecoes();
 		}
 		catch (HttpResponseException ex)
 		{
@@ -111,12 +127,18 @@ else
 		}
 	}
 
-	private async Task Cadastrar()
+	private void PaginarColecoes()
+	{
+		totalPaginas = 1 + colecoes.Count() / quantidadePorPagina;
+		SetPaginaAtual(1);
+	}
+
+	private void Cadastrar()
 	{
 		navManager.NavigateTo("/novacolecao");
 	}
 
-	private async Task NavegarPara(ColecaoBasicVM colecao)
+	private void NavegarPara(ColecaoBasicVM colecao)
 	{
 		navManager.NavigateTo($"/colecao/{colecao.Id}");
 	}
