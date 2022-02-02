@@ -2,10 +2,10 @@
 @inject NavigationManager navManager
 
 <div class="row mb-3">
-	<div class="col-12 col-lg-6 col-xl-5 mb-2 mb-lg-0">
+	<div class="col-12 col-xl-5 mb-2 mb-xl-0">
 		<SearchAndCreateBar Mensagem="@mensagemParametro" OnClickBuscarCallback="BuscarColecoes" OnClickCadastrarCallback="Cadastrar" />
 	</div>
-	<div class="col-12 col-lg-6 col-xl-7">
+	<div class="col-12 col-xl-7">
 		<div class="d-flex flex-row-reverse justify-content-center justify-content-lg-start">
 			<div class="col-auto">
 				<GerenciadorDeColunas QuantidadeDeColunas="QuantidadeMaximaDeColunas"
@@ -15,11 +15,10 @@
 			</div>
 			<form class="d-inline-block mx-3">
 				<select class="form-select form-select-sm" value="@(quantidadePorPagina)" @onchange="SetQuantidadePorPagina">
-					<option value="20">20 por página</option>
-					<option value="40">40 por página</option>
-					<option value="80">80 por página</option>
-					<option value="160">160 por página</option>
-					<option value="320">320 por página</option>
+					@for (int i = 20; i <= 300; i *= 2)
+					{
+						<option value="@i">@i por página</option>
+					}
 				</select>
 			</form>
 			@if (totalPaginas > 1)
@@ -55,10 +54,10 @@ else
 
 @if (totalPaginas > 1)
 {
-	<div class="row mt-3">
-		<div class="col-12 d-flex flex-row-reverse justify-content-center">
+	<div class="row my-3">
+		<div class="col-12 d-flex justify-content-center">
 			<nav class="d-inline-block">
-				<Paginacao TotalPaginas="totalPaginas" PaginaAtual="paginaAtual" />
+				<Paginacao TotalPaginas="totalPaginas" PaginaAtual="paginaAtual" OnClickCallback="SetPaginaAtual" />
 			</nav>
 		</div>
 	</div>
@@ -93,7 +92,7 @@ else
 	{
 		quantidadePorPagina = 20;
 		Int32.TryParse(e.Value.ToString(), out quantidadePorPagina);
-		PaginarColecoes();
+		Paginar();
 	}
 
 	private void SetPaginaAtual(int paginaAtual)
@@ -119,7 +118,7 @@ else
 		try
 		{
 			colecoes = await colecaoService.GetByName(nome, IdColecaoPrincipal);
-			PaginarColecoes();
+			Paginar();
 		}
 		catch (HttpResponseException ex)
 		{
@@ -127,9 +126,9 @@ else
 		}
 	}
 
-	private void PaginarColecoes()
+	private void Paginar()
 	{
-		totalPaginas = 1 + colecoes.Count() / quantidadePorPagina;
+		totalPaginas = Convert.ToInt32(Math.Ceiling((double)colecoes.Count() / quantidadePorPagina));
 		SetPaginaAtual(1);
 	}
 
