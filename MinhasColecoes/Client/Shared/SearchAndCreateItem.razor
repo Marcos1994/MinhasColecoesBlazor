@@ -14,7 +14,13 @@
 	</div>
 	<div class="col-12 col-lg-6 col-xl-7">
 		<div class="d-flex flex-row-reverse justify-content-center justify-content-lg-start">
-			<form class="d-inline-block">
+			<div class="col-auto">
+				<GerenciadorDeColunas QuantidadeDeColunas="QuantidadeDeColunas"
+									  QuantidadeMaximaDeColunas="QuantidadeMaximaDeColunas"
+									  OnChangeDistribuicaoCallback="AjustarColunas"
+									  OnChangeQuantidadeCallback="AjustarTamanhoDosItens" />
+			</div>
+			<form class="d-inline-block mx-3">
 				<select class="form-select form-select-sm" @bind="QuantidadePorPagina">
 					<option value="25">25 por página</option>
 					<option value="50">50 por página</option>
@@ -46,10 +52,10 @@
 }
 else
 {
-	<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5 g-3">
+	<div class="row @(distribuicaoDasColunas) g-3">
 		@foreach (ItemBasicVM i in itens)
 		{
-			<CardItem Item="i" OnSelectCallback="AtualizarRelacionamentoItem" Editavel="true" />
+			<CardItem Item="i" TamanhoDaImagem="tamanhoDosCards" OnSelectCallback="AtualizarRelacionamentoItem" Editavel="true" />
 		}
 	</div>
 }
@@ -69,6 +75,15 @@ else
 	[Parameter]
 	public int IdColecao { get; set; }
 
+	[Parameter]
+	public int QuantidadeDeColunas { get; set; } = 5;
+
+	[Parameter]
+	public int QuantidadeMaximaDeColunas { get; set; } = 6;
+
+	private string distribuicaoDasColunas = "row-cols-1";
+	private int tamanhoDosCards = 200;
+
 	public int QuantidadePorPagina { get; set; } = 25;
 
 	private List<ItemBasicVM> itens;
@@ -81,6 +96,16 @@ else
 	{
 		itens = null;
 		await BuscarItens();
+	}
+
+	private void AjustarColunas(string distribuicaoDasColunas)
+	{
+		this.distribuicaoDasColunas = distribuicaoDasColunas;
+	}
+
+	private void AjustarTamanhoDosItens(int quantidadeColunas)
+	{
+		tamanhoDosCards = 200 * (4 + QuantidadeMaximaDeColunas - quantidadeColunas) / 4;
 	}
 
 	private async Task BuscarItens(string nome = "")

@@ -2,7 +2,7 @@
 
 <div class="col">
 	<div class="card h-100 shadow rounded-3">
-		<div class="card-img-top position-relative" style="height: 200px;">
+		<div class="card-img-top position-relative" style="height: @(TamanhoDaImagem + "px");">
 			@if (!Item.Original)
 			{
 				<a class="position-absolute end-0 top-0 p-2 text-secondary bg-white rounded-top">
@@ -36,7 +36,7 @@
 						break;
 				}
 			</a>
-			<a @onclick="OnClick" class="card-img-top bg-secondary" style="height: 200px;">
+			<a @onclick="OnClick" class="card-img-top bg-secondary" style="height: @(TamanhoDaImagem + "px");">
 				<img src="@(httpService.BaseUrl + Item.Foto)" alt="@Item.Nome"
 					 class="mx-auto d-block" style="max-width: 100%; max-height: 100%;">
 			</a>
@@ -44,7 +44,6 @@
 		<div class="card-header">
 			<div class="form-group">
 				<select class="form-control" value="@((int)Item.Relacao)" @onchange="OnSelect" disabled="@(!Editavel)">
-					<option selected>Alterar Relacionamento</option>
 					<option value="@((int)EnumRelacaoUsuarioItem.NaoPossuo)">Não Possuo</option>
 					<option value="@((int)EnumRelacaoUsuarioItem.Desejo)">Desejo</option>
 					<option value="@((int)EnumRelacaoUsuarioItem.AguardandoRecebimento)">Aguardando receber</option>
@@ -64,6 +63,9 @@
 @code {
 	[Parameter]
 	public ItemBasicVM Item { get; set; }
+
+	[Parameter]
+	public int TamanhoDaImagem { get; set; } = 200;
 
 	[Parameter]
 	public bool Editavel { get; set; } = false;
