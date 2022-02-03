@@ -1,13 +1,33 @@
 ﻿@page "/colecao/{Id:int}"
+@inject HttpService httpService
 @inject ColecaoApiService colecaoService
 @inject NavigationManager navManager
 
-<GenealogiaColecao IdColecaoMaior="colecao.IdColecaoMaior" OnClickCallback="NavegarPara" />
+@if (colecao != null)
+{
+	<div class="d-flex flex-row mb-3">
+		<div>
+			<img src="@(httpService.BaseUrl + colecao.Foto)" style="max-height: 200px;" />
+		</div>
+		<div class="col ms-3">
+			<div class="row">
+				<GenealogiaColecao IdColecaoMaior="colecao.IdColecaoMaior" OnClickCallback="NavegarPara" />
+				<h3>Coleção @colecao.Nome</h3>
+				<p>@colecao.Descricao</p>
+			</div>
+			@*<div class="d-flex flex-row bd-highlight bottom-0">
+				<button class="btn btn-secondary text-white d-inline-flex">Itens</button>
+				<button class="btn btn-secondary text-white d-inline-flex ms-3">Subcoleções</button>
+				<button class="btn btn-secondary text-white d-inline-flex ms-3">Membros</button>
+			</div>*@
+		</div>
+	</div>
+}
 
-<h3>Coleção @colecao.Nome</h3>
-<p>@colecao.Descricao</p>
+<hr />
 <SearchAndCreateColecao IdColecaoPrincipal="@Id" QuantidadeMaximaDeColunas="6" />
-<br />
+
+<hr />
 <SearchAndCreateItem IdColecao="@Id" QuantidadeDeColunas="4" QuantidadeMaximaDeColunas="6" />
 
 @code {
@@ -15,6 +35,12 @@
 	public int Id { get; set; }
 
 	private ColecaoVM colecao = new ColecaoVM();
+
+	protected override async Task OnParametersSetAsync()
+	{
+		colecao = new ColecaoVM();
+		await LoadColecao();
+	}
 
 	async Task LoadColecao()
 	{
@@ -31,11 +57,5 @@
 	private async Task NavegarPara(ColecaoBasicVM colecao)
 	{
 		navManager.NavigateTo($"/colecao/{colecao.Id}");
-	}
-
-	protected override async Task OnParametersSetAsync()
-	{
-		colecao = new ColecaoVM();
-		await LoadColecao();
 	}
 }
