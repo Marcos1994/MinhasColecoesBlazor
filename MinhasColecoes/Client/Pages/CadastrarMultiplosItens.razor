@@ -123,9 +123,9 @@
 			{
 				<div class="form-group mb-3">
 					<select class="form-control" @bind="@relacaoPadrao">
-						@foreach (var relacao in Enum.GetValues(typeof(EnumRelacaoUsuarioItem)))
+						@foreach (EnumRelacaoUsuarioItem relacao in Enum.GetValues(typeof(EnumRelacaoUsuarioItem)))
 						{
-							<option value="@relacao">@relacao</option>
+							<option value="@relacao">@RelacaoUsuarioItemHelper.Nome(relacao)</option>
 						}
 					</select>
 				</div>

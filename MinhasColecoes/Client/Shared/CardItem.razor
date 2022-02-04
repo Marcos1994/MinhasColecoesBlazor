@@ -1,4 +1,5 @@
-﻿@inject HttpService httpService
+﻿@using Models 
+@inject HttpService httpService
 
 <div class="col">
 	<div class="card h-100 shadow rounded-3">
@@ -11,30 +12,8 @@
 				</a>
 			}
 			<a class="position-absolute end-0 bottom-0 p-2 text-secondary bg-white rounded-top">
-				@switch (Item.Relacao)
-				{
-					case EnumRelacaoUsuarioItem.Desejo:
-						<i class="bi-heart" title="Desejo" style="font-size: 20px; line-height: 20px;"></i>
-						break;
-					case EnumRelacaoUsuarioItem.AguardandoRecebimento:
-						<i class="bi-heart-half" title="Aguardando Recebimento" style="font-size: 20px; line-height: 20px;"></i>
-						break;
-					case EnumRelacaoUsuarioItem.Possuo:
-						<i class="bi-heart-fill" title="Desejo" style="font-size: 20px; line-height: 20px;"></i>
-						break;
-					case EnumRelacaoUsuarioItem.Trocar:
-						<i class="bi-arrow-left-right" title="Disponível para troca" style="font-size: 20px; line-height: 20px;"></i>
-						break;
-					case EnumRelacaoUsuarioItem.Vender:
-						<i class="bi-currency-dollar" title="Disponível para venda" style="font-size: 20px; line-height: 20px;"></i>
-						break;
-					case EnumRelacaoUsuarioItem.JaPossui:
-						<i class="bi-hourglass" title="Já possuí" style="font-size: 20px; line-height: 20px;"></i>
-						break;
-					default:
-						<i class="bi-x-circle" title="Desejo" style="font-size: 20px; line-height: 20px;"></i>
-						break;
-				}
+				<i class="@RelacaoUsuarioItemHelper.Icone(Item.Relacao)"
+				   title="@RelacaoUsuarioItemHelper.Nome(Item.Relacao)" style="font-size: 20px; line-height: 20px;"></i>
 			</a>
 			<a @onclick="OnClick" class="card-img-top bg-secondary" style="height: @(TamanhoDaImagem + "px");">
 				<img src="@(httpService.BaseUrl + Item.Foto)" alt="@Item.Nome"
@@ -44,13 +23,10 @@
 		<div class="card-header">
 			<div class="form-group">
 				<select class="form-control" value="@((int)Item.Relacao)" @onchange="OnSelect" disabled="@(!Editavel)">
-					<option value="@((int)EnumRelacaoUsuarioItem.NaoPossuo)">Não Possuo</option>
-					<option value="@((int)EnumRelacaoUsuarioItem.Desejo)">Desejo</option>
-					<option value="@((int)EnumRelacaoUsuarioItem.AguardandoRecebimento)">Aguardando receber</option>
-					<option value="@((int)EnumRelacaoUsuarioItem.Possuo)">Possuo</option>
-					<option value="@((int)EnumRelacaoUsuarioItem.Trocar)">Disponível para trocar</option>
-					<option value="@((int)EnumRelacaoUsuarioItem.Vender)">Disponível para vender</option>
-					<option value="@((int)EnumRelacaoUsuarioItem.JaPossui)">Já tive</option>
+					@foreach (EnumRelacaoUsuarioItem relacao in Enum.GetValues(typeof(EnumRelacaoUsuarioItem)))
+					{
+						<option value="@((int)relacao)">@RelacaoUsuarioItemHelper.Nome(relacao)</option>
+					}
 				</select>
 			</div>
 		</div>
