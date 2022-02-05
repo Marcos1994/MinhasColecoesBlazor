@@ -252,7 +252,14 @@
 	private async Task CarregarArquivos()
 	{
 		IEnumerable<IFileReference> arquivos = await fileReader.CreateReference(inputFile).EnumerateFilesAsync();
-		if (!arquivos.Any())
+		if (arquivos.Any())
+		{
+			if (!await JSRuntime.InvokeAsync<bool>
+				("confirm", $"Existem {itens.Count} itens carregados. Estes itens serão descartados e substituídos pelos novos caso deseje prosseguir."))
+				return;
+
+		}
+		else
 			return;
 
 		mensagens.Clear();

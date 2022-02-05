@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Blazored.LocalStorage;
 using Tewr.Blazor.FileReader;
 using MinhasColecoes.Client.MinhasColecoesAPI;
+using Blazored.Modal;
 
 namespace MinhasColecoes.Client
 {
@@ -24,6 +25,7 @@ namespace MinhasColecoes.Client
 			//builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 			builder.Services.AddBlazoredLocalStorage();
+			builder.Services.AddBlazoredModal();
 			builder.Services.AddFileReaderService(o =>
 			{
 				o.UseWasmSharedBuffer = true;
