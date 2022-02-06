@@ -1,19 +1,21 @@
-﻿<div class="container" style="@(Redimensionar ? "max-width: 100%;" : "max-width: 400px;")">
+﻿<div class="container" style="max-width: 100%;">
 	@if (!string.IsNullOrEmpty(Mensagem))
 	{
 		<div class="row mb-3">
-			<p>@Mensagem</p>
+			<div class="col" style="width: 100%;">
+				<p>@Mensagem</p>
+			</div>
 		</div>
 	}
 	<div class="row">
 		<div class="col">
 			<div class="d-flex">
-				<a class="btn btn-danger" @onclick="Cancelar">Cancelar</a>
+				<a class="btn @(!AlertaConfirmar ? "btn-danger" : "btn-primary")" @onclick="Cancelar">Cancelar</a>
 			</div>
 		</div>
 		<div class="col">
 			<div class="d-flex flex-row-reverse justify-content-start">
-				<a class="btn btn-primary" @onclick="Confirmar">Confirmar</a>
+				<a class="btn @(AlertaConfirmar ? "btn-danger" : "btn-primary")" @onclick="Confirmar">Confirmar</a>
 			</div>
 		</div>
 	</div>
@@ -24,10 +26,10 @@
 	BlazoredModalInstance ModalInstance { get; set; }
 
 	[Parameter]
-	public bool Redimensionar { get; set; } = false;
+	public string Mensagem { get; set; }
 
 	[Parameter]
-	public string Mensagem { get; set; }
+	public bool AlertaConfirmar { get; set; } = false;
 
 	private async Task Confirmar()
 	{

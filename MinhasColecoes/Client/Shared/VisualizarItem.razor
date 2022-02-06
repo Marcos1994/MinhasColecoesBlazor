@@ -60,6 +60,7 @@
 	{
 		var parameters = new ModalParameters();
 		parameters.Add("Mensagem", $"Deseja realmente excluir o item {Item.CodigoNome}?");
+		parameters.Add("AlertaConfirmar", true);
 
 		var messageForm = modal.Show<ModalConfirmar>($"Confirmar exclusão",
 			parameters, new ModalOptions() { HideCloseButton = true });
