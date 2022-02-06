@@ -29,6 +29,15 @@ namespace MinhasColecoes.Client.MinhasColecoesAPI
 			return await response.Content.ReadFromJsonAsync<ItemVM>();
 		}
 
+		public async Task Delete(int idItem)
+		{
+			HttpClient client = await httpService.GetClient();
+			HttpResponseMessage response = await client.DeleteAsync($"Itens/{idItem}");
+
+			if (!response.IsSuccessStatusCode)
+				throw new HttpResponseException(response);
+		}
+
 		public async Task AtualizarRelacionamento(ItemBasicVM input)
 		{
 			HttpClient client = await httpService.GetClient();
