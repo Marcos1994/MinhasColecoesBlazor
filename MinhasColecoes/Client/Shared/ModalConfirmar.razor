@@ -1,0 +1,41 @@
+﻿<div class="container" style="@(Redimensionar ? "max-width: 100%;" : "max-width: 400px;")">
+	@if (!string.IsNullOrEmpty(Mensagem))
+	{
+		<div class="row mb-3">
+			<p>@Mensagem</p>
+		</div>
+	}
+	<div class="row">
+		<div class="col">
+			<div class="d-flex">
+				<a class="btn btn-danger" @onclick="Cancelar">Cancelar</a>
+			</div>
+		</div>
+		<div class="col">
+			<div class="d-flex flex-row-reverse justify-content-start">
+				<a class="btn btn-primary" @onclick="Confirmar">Confirmar</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+@code {
+	[CascadingParameter]
+	BlazoredModalInstance ModalInstance { get; set; }
+
+	[Parameter]
+	public bool Redimensionar { get; set; } = false;
+
+	[Parameter]
+	public string Mensagem { get; set; }
+
+	private async Task Confirmar()
+	{
+		await ModalInstance.CloseAsync(ModalResult.Ok<bool>(true));
+	}
+
+	private async Task Cancelar()
+	{
+		await ModalInstance.CloseAsync(ModalResult.Cancel());
+	}
+}

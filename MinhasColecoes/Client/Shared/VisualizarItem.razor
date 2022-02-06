@@ -1,0 +1,71 @@
+﻿@inject HttpService httpService
+
+<div class="container">
+	<div class="row mb-3">
+		<a @onclick="(() => imagemGrande = !imagemGrande)">
+			<img src="@(httpService.BaseUrl + Item.Foto)" alt="@Item.Nome" class="mx-auto d-block"
+				 style="@(imagemGrande ? "" : "max-width: 400px; max-height: 400px;")">
+		</a>
+	</div>
+	<div class="row mb-3">
+		<p>Descrição: @Item.Descricao</p>
+	</div>
+	<div class="row mb-3">
+		<div class="col">
+			<div class="d-flex">
+				@if (editando)
+				{
+					<a class="btn btn-danger text-white" @onclick="(() => editando = false)">Cancelar</a>
+				}
+				else
+				{
+					<a class="btn btn-danger" @onclick="Excluir">Excluir</a>
+				}
+			</div>
+		</div>
+		<div class="col">
+			<div class="d-flex flex-row-reverse justify-content-start">
+				@if (editando)
+				{
+					<a class="btn btn-primary" @onclick="Salvar">Salvar</a>
+				}
+				else
+				{
+					<a class="btn btn-primary" @onclick="(() => editando = true)">Editar</a>
+				}
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+@code {
+	[CascadingParameter]
+	BlazoredModalInstance ModalInstance { get; set; }
+
+	[Parameter]
+	public ItemBasicVM Item { get; set; }
+
+	private bool imagemGrande = false;
+	private bool editando = false;
+
+	private async Task Salvar()
+	{
+		editando = false;
+		await ModalInstance.CloseAsync(ModalResult.Ok<ItemBasicVM>(Item));
+	}
+
+	private async Task Excluir()
+	{
+		var parameters = new ModalParameters();
+		parameters.Add("Mensagem", $"Deseja realmente excluir o item {Item.CodigoNome}?");
+
+		var messageForm = modal.Show<ModalConfirmar>($"Confirmar exclusão",
+			parameters, new ModalOptions() { HideCloseButton = true });
+		var result = await messageForm.Result;
+
+		if(!result.Cancelled)
+			await ModalInstance.CloseAsync(ModalResult.Ok<ItemBasicVM>(null));
+	}
+}

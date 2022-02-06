@@ -92,7 +92,7 @@ else
 				.Skip(quantidadePorPagina * (paginaAtual - 1))
 				.Take(quantidadePorPagina))
 			{
-				<CardItem Item="i" TamanhoDaImagem="tamanhoDosCards" OnSelectCallback="AtualizarRelacionamentoItem" Editavel="true" />
+				<CardItem Item="i" TamanhoDaImagem="tamanhoDosCards" OnSelectCallback="AtualizarRelacionamentoItem" OnClickCallback="VisualizarItem" Editavel="true" />
 			}
 		</div>
 	}
@@ -207,6 +207,24 @@ else
 		catch (HttpResponseException ex)
 		{
 			status = ex.Response.StatusCode;
+		}
+	}
+
+	private async Task VisualizarItem(ItemBasicVM item)
+	{
+		var parameters = new ModalParameters();
+		parameters.Add("Item", item);
+
+		var messageForm = modal.Show<VisualizarItem>($"Item:", parameters);
+		var result = await messageForm.Result;
+
+		if (result.Cancelled)
+			return;
+
+		if (result.Data == null)
+		{
+			itens.RemoveAll(i => i.Id == item.Id);
+			Paginar();
 		}
 	}
 
