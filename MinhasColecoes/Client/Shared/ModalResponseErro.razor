@@ -1,0 +1,57 @@
+﻿<div class="container" style="max-width: 100%;">
+	@if (!string.IsNullOrEmpty(Mensagem))
+	{
+		<div class="row mb-1">@Mensagem</div>
+	}
+	@if (erros != null && erros.Errors.Any())
+	{
+		<div class="row mb-1">@erros.Title</div>
+		@foreach (var erro in erros.Errors)
+		{
+			<div class="row mb-1">
+				<div class="col">
+					@erro.Key
+					<ul>
+						@foreach (string msg in erro.Value)
+						{
+							<li>@msg</li>
+						}
+					</ul>
+				</div>
+			</div>
+		}
+	}
+	<div class="row mb-1">
+		<div class="col">
+			<div class="text-center">
+				<button class="btn btn-sm btn-primary" @onclick="Confirmar">Confirmar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+@code {
+	[CascadingParameter]
+	BlazoredModalInstance ModalInstance { get; set; }
+
+	[Parameter]
+	public string Mensagem { get; set; }
+
+	[Parameter]
+	public HttpResponseException ResponseException { get; set; }
+
+	private ValidationErrorModel erros;
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (ResponseException == null)
+			return;
+
+		erros = await ResponseException.Response.Content.ReadFromJsonAsync<ValidationErrorModel>();
+	}
+
+	private async Task Confirmar()
+	{
+		await ModalInstance.CloseAsync(ModalResult.Cancel());
+	}
+}

@@ -6,7 +6,6 @@
 <div class="login-form">
 	<h1 class="title-gradient">Login</h1>
 	<div class="container">
-		<ValidationError @ref="validationError" />
 		<div class="form-floating mb-3">
 			<input class="form-control" aria-describedby="emailHelp" @bind="usuarioIM.Login" autofocus />
 			<label>E-mail: </label>
@@ -23,7 +22,6 @@
 
 @code {
 	private UsuarioLoginIM usuarioIM = new UsuarioLoginIM();
-	ValidationError validationError;
 
 	private async Task Logar()
 	{
@@ -34,15 +32,12 @@
 		}
 		catch (HttpResponseException ex)
 		{
-			HttpResponseMessage response = ex.Response;
+			var parameters = new ModalParameters();
+			parameters.Add("ResponseException", ex);
+			if (ex.Response.StatusCode == HttpStatusCode.NotFound)
+				parameters.Add("Mensagem", "Combinação de Login e Senha não encontrada.");
 
-			if (response.StatusCode == HttpStatusCode.NotFound)
-				validationError.SetMessage("Combinação de Login e Senha não encontrada.");
-			else
-			{
-				ValidationErrorModel erros = await response.Content.ReadFromJsonAsync<ValidationErrorModel>();
-				validationError.SetValidationErrors(erros);
-			}
+			var messageForm = modal.Show<ModalResponseErro>(ex.Response.StatusCode.ToString(), parameters, new ModalOptions() { HideCloseButton = true });
 		}
 	}
 }
