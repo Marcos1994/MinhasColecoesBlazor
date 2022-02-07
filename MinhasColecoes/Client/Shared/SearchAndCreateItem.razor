@@ -7,7 +7,6 @@
 		<SearchAndCreateBar Mensagem="@mensagemParametro" OnClickBuscarCallback="BuscarItens" OnClickCadastrarCallback="Cadastrar" />
 	</div>
 	<div class="col-12 col-xl-7">
-
 		<div class="d-flex flex-row-reverse justify-content-center justify-content-lg-start">
 			<div class="col-auto">
 				<GerenciadorDeColunas QuantidadeDeColunas="QuantidadeDeColunas"
@@ -15,7 +14,7 @@
 									  OnChangeDistribuicaoCallback="AjustarColunas"
 									  OnChangeQuantidadeCallback="AjustarTamanhoDosItens" />
 			</div>
-			<form class="d-inline-block mx-3">
+			<form class="d-inline-block me-3">
 				<select class="form-select form-select-sm" value="@(quantidadePorPagina)" @onchange="SetQuantidadePorPagina">
 					@for (int i = 20; i <= 300; i *= 2)
 					{
@@ -23,7 +22,7 @@
 					}
 				</select>
 			</form>
-			<div class="dropdown">
+			<div class="dropdown me-3">
 				<button class="btn btn-primary dropdown-toggle btn-sm" type="button" @onclick="ExibirFiltros">
 					Filtrar Relação
 				</button>
@@ -40,6 +39,11 @@
 						</li>
 					}
 				</ul>
+			</div>
+			<div class="col-auto me-3">
+				<button class="btn btn-primary btn-sm" @onclick="(() => exibirDetalhes = !exibirDetalhes)">
+					@(exibirDetalhes ? "Ocultar Detalhes" : "Exibir Detalhes")
+				</button>
 			</div>
 		</div>
 	</div>
@@ -85,7 +89,11 @@ else
 				.Skip(quantidadePorPagina * (paginaAtual - 1))
 				.Take(quantidadePorPagina))
 			{
-				<CardItem Item="i" TamanhoDaImagem="tamanhoDosCards" OnSelectCallback="AtualizarRelacionamentoItem" OnClickCallback="VisualizarItem" Editavel="true" />
+				<CardItem Item="i" Editavel="true"
+						  ExibirDetalhes="exibirDetalhes"
+						  TamanhoDaImagem="tamanhoDosCards"
+						  OnSelectCallback="AtualizarRelacionamentoItem"
+						  OnClickCallback="VisualizarItem" />
 			}
 		</div>
 	}
@@ -117,6 +125,7 @@ else
 
 	private string distribuicaoDasColunas = "row-cols-1";
 	private int tamanhoDosCards = 200;
+	private bool exibirDetalhes = false;
 
 	private List<ItemBasicVM> itens;
 	private List<ItemBasicVM> itensPaginados;

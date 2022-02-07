@@ -2,7 +2,7 @@
 @inject HttpService httpService
 
 <div class="col">
-	<div class="card h-100 shadow rounded-3">
+	<div class="card h-100 shadow-sm rounded-3">
 		<div class="card-img-top position-relative" style="height: @(TamanhoDaImagem + "px");">
 			@if (!Item.Original)
 			{
@@ -20,25 +20,31 @@
 					 class="mx-auto d-block" style="max-width: 100%; max-height: 100%;">
 			</a>
 		</div>
-		<div class="card-header">
-			<div class="form-group">
-				<select class="form-control" value="@((int)Item.Relacao)" @onchange="OnSelect" disabled="@(!Editavel)">
-					@foreach (EnumRelacaoUsuarioItem relacao in Enum.GetValues(typeof(EnumRelacaoUsuarioItem)))
-					{
-						<option value="@((int)relacao)">@RelacaoUsuarioItemHelper.Nome(relacao)</option>
-					}
-				</select>
+		@if (ExibirDetalhes)
+		{
+			<div class="card-header">
+				<div class="form-group">
+					<select class="form-control" value="@((int)Item.Relacao)" @onchange="OnSelect" disabled="@(!Editavel)">
+						@foreach (EnumRelacaoUsuarioItem relacao in Enum.GetValues(typeof(EnumRelacaoUsuarioItem)))
+						{
+							<option value="@((int)relacao)">@RelacaoUsuarioItemHelper.Nome(relacao)</option>
+						}
+					</select>
+				</div>
 			</div>
-		</div>
-		<div class="card-body">
-			<h6 class="card-title truncate-2l text-center">@Item.CodigoNome</h6>
-		</div>
+			<div class="card-body">
+				<h6 class="card-title truncate-2l text-center">@Item.CodigoNome</h6>
+			</div>
+		}
 	</div>
 </div>
 
 @code {
 	[Parameter]
 	public ItemBasicVM Item { get; set; }
+
+	[Parameter]
+	public bool ExibirDetalhes { get; set; } = false;
 
 	[Parameter]
 	public int TamanhoDaImagem { get; set; } = 200;
