@@ -4,14 +4,7 @@
 
 <div class="row mb-3">
 	<div class="col-12 col-xl-5 mb-2 mb-xl-0">
-		<div class="row">
-			<div class="col">
-				<SearchAndCreateBar Mensagem="@mensagemParametro" OnClickBuscarCallback="BuscarItens" OnClickCadastrarCallback="Cadastrar" />
-			</div>
-			<div class="col-auto">
-				<a class="btn btn-secondary" href="/colecao/@(IdColecao)/cadastrarmultiplositens">Cadastrar Vários</a>
-			</div>
-		</div>
+		<SearchAndCreateBar Mensagem="@mensagemParametro" OnClickBuscarCallback="BuscarItens" OnClickCadastrarCallback="Cadastrar" />
 	</div>
 	<div class="col-12 col-xl-7">
 
@@ -230,7 +223,7 @@ else
 
 	private void Cadastrar()
 	{
-
+		navManager.NavigateTo($"/colecao/{IdColecao}/cadastrarmultiplositens");
 	}
 
 	private void NavegarPara(ColecaoBasicVM colecao)
