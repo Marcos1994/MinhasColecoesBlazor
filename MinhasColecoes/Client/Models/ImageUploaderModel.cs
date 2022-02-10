@@ -35,7 +35,7 @@ namespace MinhasColecoes.Client.Models
 					MaxFileSize *= 150;
 					break;
 				case EnumCategoriasFotos.Item:
-					MaxFileSize *= 250;
+					MaxFileSize *= 300;
 					break;
 			}
 		}
