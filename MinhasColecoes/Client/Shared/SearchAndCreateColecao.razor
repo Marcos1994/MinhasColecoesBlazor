@@ -134,7 +134,10 @@ else
 
 	private void Cadastrar()
 	{
-		navManager.NavigateTo("/novacolecao");
+		if(IdColecaoPrincipal == null)
+			navManager.NavigateTo("/novacolecao");
+		else
+			navManager.NavigateTo($"/novacolecao/{IdColecaoPrincipal}");
 	}
 
 	private void NavegarPara(ColecaoBasicVM colecao)

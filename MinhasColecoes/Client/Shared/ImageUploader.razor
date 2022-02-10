@@ -4,7 +4,6 @@
 @inject IFileReaderService fileReader
 @inject FileUploadApiService uploader
 
-
 <div class="row mb-3" style="height: 200px;">
 	<div class="col border border-dark rounded-3" style="height: 200px;">
 		<div class="d-block position-relative" style="height: 200px;">
@@ -45,6 +44,9 @@
 	[Parameter]
 	public string Url { get; set; } = string.Empty;
 
+	[Parameter]
+	public EventCallback<string> OnLoadCallback { get; set; }
+
 	ElementReference inputFile;
 	ImageUploaderModel imagem;
 	string mensagem = string.Empty;
@@ -62,6 +64,7 @@
 		try
 		{
 			await imagem.SetFileAsync((await fileReader.CreateReference(inputFile).EnumerateFilesAsync()).FirstOrDefault());
+			await OnLoadCallback.InvokeAsync(imagem.NomeSemExtensao);
 		}
 		catch (Exception ex)
 		{

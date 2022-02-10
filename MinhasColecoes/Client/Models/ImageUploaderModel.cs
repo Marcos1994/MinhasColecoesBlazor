@@ -19,6 +19,9 @@ namespace MinhasColecoes.Client.Models
 		public string Tipo { get; private set; }
 		public long Tamanho { get; private set; }
 
+		public string NomeSemExtensao
+		{ get { return Path.GetFileNameWithoutExtension(Nome); } }
+
 		public ImageUploaderModel(EnumCategoriasFotos Categoria, string baseUrl)
 		{
 			BaseUrl = baseUrl;
