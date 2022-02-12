@@ -1,6 +1,7 @@
 ﻿@page "/colecao/{IdColecao:int}/cadastrarmultiplositens"
 @using Tewr.Blazor.FileReader
 @using MinhasColecoes.Client.Models
+@using Util
 @inject IFileReaderService fileReader
 @inject FileUploadApiService uploader
 @inject ColecaoApiService colecaoService
@@ -307,7 +308,7 @@
 
 			int quantidadePalavras = nomeArray.Length - (indiceInicioNome + indiceFinalNome - 2);
 			if (quantidadePalavras > 0 && quantidadePalavras <= nomeArray.Length)
-				model.Item.Nome = string.Join(' ', nomeArray, indiceInicioNome - 1, quantidadePalavras);
+				model.Item.Nome = Formatar.PrimeiroCaractereMaiusculo(string.Join(' ', nomeArray, indiceInicioNome - 1, quantidadePalavras));
 			else
 				mensagens.Add($"O nome do arquivo \"{model.Nome}\" ficaria com {quantidadePalavras} palavras.");
 
