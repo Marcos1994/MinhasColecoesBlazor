@@ -11,7 +11,7 @@
 					   style="font-size: 20px; line-height: 20px;"></i>
 				</a>
 			}
-			<a class="position-absolute end-0 bottom-0 p-2 text-secondary bg-white rounded-top">
+			<a @onclick="OnClickIcon" class="position-absolute end-0 bottom-0 p-2 text-secondary bg-white rounded-top">
 				<i class="@RelacaoUsuarioItemHelper.Icone(Item.Relacao)"
 				   title="@RelacaoUsuarioItemHelper.Nome(Item.Relacao)" style="font-size: 20px; line-height: 20px;"></i>
 			</a>
@@ -58,9 +58,17 @@
 	[Parameter]
 	public EventCallback<ItemBasicVM> OnSelectCallback { get; set; }
 
+	[Parameter]
+	public EventCallback<ItemBasicVM> OnClickIconCallback { get; set; }
+
 	protected async Task OnClick()
 	{
 		await OnClickCallback.InvokeAsync(Item);
+	}
+
+	protected async Task OnClickIcon()
+	{
+		await OnClickIconCallback.InvokeAsync(Item);
 	}
 
 	protected async Task OnSelect(ChangeEventArgs e)

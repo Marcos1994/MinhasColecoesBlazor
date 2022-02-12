@@ -93,7 +93,8 @@ else
 						  ExibirDetalhes="exibirDetalhes"
 						  TamanhoDaImagem="tamanhoDosCards"
 						  OnSelectCallback="AtualizarRelacionamentoItem"
-						  OnClickCallback="VisualizarItem" />
+						  OnClickCallback="VisualizarItem" 
+						  OnClickIconCallback="TrocarRelacionamentoItem"/>
 			}
 		</div>
 	}
@@ -202,6 +203,31 @@ else
 
 	private async Task AtualizarRelacionamentoItem(ItemBasicVM item)
 	{
+		try
+		{
+			await itemService.AtualizarRelacionamento(item);
+		}
+		catch (HttpResponseException ex)
+		{
+			status = ex.Response.StatusCode;
+		}
+	}
+
+	private async Task TrocarRelacionamentoItem(ItemBasicVM item)
+	{
+		switch (item.Relacao)
+		{
+			case EnumRelacaoUsuarioItem.NaoPossuo:
+				item.Relacao = EnumRelacaoUsuarioItem.Possuo;
+				break;
+			case EnumRelacaoUsuarioItem.Possuo:
+				item.Relacao = EnumRelacaoUsuarioItem.Trocar;
+				break;
+			default:
+				item.Relacao = EnumRelacaoUsuarioItem.NaoPossuo;
+				break;
+		}
+
 		try
 		{
 			await itemService.AtualizarRelacionamento(item);
