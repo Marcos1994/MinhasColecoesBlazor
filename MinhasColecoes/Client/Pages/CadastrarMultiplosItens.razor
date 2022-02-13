@@ -43,6 +43,7 @@
 			}
 			else
 			{
+				@* _________ Substituição de caracteres _________ *@
 				<div class="input-group mb-3">
 					<div class="input-group-prepend">
 						<span class="input-group-text">Substituir</span>
@@ -60,6 +61,7 @@
 					</div>
 				</div>
 
+				@* _________ Definição do separador _________ *@
 				<div class="form-group mb-3">
 					<label>Escolha um separador</label>
 					<select class="form-control" @bind="@separador">
@@ -70,6 +72,7 @@
 					</select>
 				</div>
 
+				@* _________ Definição dos indices do nome _________ *@
 				<div class="input-group mb-3">
 					<div class="input-group-prepend">
 						<span class="input-group-text">Indice do inicio do nome</span>
@@ -84,26 +87,28 @@
 					<input type="number" class="form-control" maxlength="1" @bind="indiceFinalNome" min="1" max="99">
 				</div>
 
-				<div class="form-floating mb-3">
-					<input type="text" class="form-control" @bind="@itens[0].Item.Nome" disabled="disabled" />
-					<label>Nome: </label>
-				</div>
-
+				@* _________ Definição do indice do código _________ *@
 				<div class="form-check form-switch mb-3">
 					<input class="form-check-input" type="checkbox" @bind="@filtrarCodigoPeloArquivo">
 					<label class="form-check-label">Filtrar código no nome do arquivo</label>
 				</div>
 				@if (filtrarCodigoPeloArquivo)
 				{
-					<div class="input-group mb-3">
-						<div class="input-group-prepend">
-							<span class="input-group-text">Indice</span>
+					<div class="row mb-3">
+						<div class="col">
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<span class="input-group-text">Indice</span>
+								</div>
+								<input type="number" class="form-control" maxlength="1" @bind="indiceDoCodigo" min="1" max="99">
+							</div>
 						</div>
-						<input type="number" class="form-control" maxlength="1" @bind="indiceDoCodigo" min="1" max="99">
-						<div class="input-group-prepend">
-							<span class="input-group-text">Cod.</span>
+						<div class="col">
+							<div class="form-check form-switch ms-2">
+								<input class="form-check-input" type="checkbox" @bind="@codigoNoFinal">
+								<label class="form-check-label">Cod. no final</label>
+							</div>
 						</div>
-						<input type="text" class="form-control" maxlength="1" @bind="@itens[0].Item.Codigo" disabled="disabled">
 					</div>
 				}
 			}
@@ -224,6 +229,7 @@
 
 	private bool filtrarDadosPeloArquivo = false;
 	private bool filtrarCodigoPeloArquivo = true;
+	private bool codigoNoFinal = false;
 	private bool usarRelacionamentoPadrao = true;
 	private EnumRelacaoUsuarioItem relacaoPadrao = EnumRelacaoUsuarioItem.NaoPossuo;
 	private char separador = '_';
@@ -296,6 +302,8 @@
 			string[] nomeArray = model.Nome.Split(substituirDe);
 			model.Nome = string.Join(substituirPara, nomeArray);
 		}
+
+		AtualizarItens(true);
 	}
 
 	private void AtualizarItens(bool limparMensagens)
@@ -312,10 +320,19 @@
 			else
 				mensagens.Add($"O nome do arquivo \"{model.Nome}\" ficaria com {quantidadePalavras} palavras.");
 
-			if (indiceDoCodigo > 0 && indiceDoCodigo <= nomeArray.Length)
-				model.Item.Codigo = nomeArray[indiceDoCodigo - 1];
+			if (filtrarCodigoPeloArquivo)
+			{
+				if (indiceDoCodigo > 0 && indiceDoCodigo <= nomeArray.Length)
+				{
+					model.Item.Codigo = codigoNoFinal
+						? nomeArray[nomeArray.Length - indiceDoCodigo]
+						: nomeArray[indiceDoCodigo - 1];
+				}
+				else
+					mensagens.Add($"O código do arquivo \"{model.Nome}\" não foi encontrado.");
+			}
 			else
-				mensagens.Add($"O código do arquivo \"{model.Nome}\" não foi encontrado.");
+				model.Item.Codigo = string.Empty;
 
 			if (usarRelacionamentoPadrao)
 				model.Item.Relacao = relacaoPadrao;
