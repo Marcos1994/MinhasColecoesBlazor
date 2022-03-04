@@ -186,6 +186,9 @@ else
 		try
 		{
 			itens = await itemService.GetByNome(IdColecao, nome);
+			itens = (from i in itens
+					orderby i.Codigo, i.Nome
+					select i).ToList();
 			Paginar();
 		}
 		catch (HttpResponseException ex)

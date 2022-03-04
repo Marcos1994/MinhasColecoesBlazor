@@ -118,6 +118,7 @@ else
 		try
 		{
 			colecoes = await colecaoService.GetByName(nome, IdColecaoPrincipal);
+			colecoes = colecoes.OrderBy(c => c.Nome).ToList();
 			Paginar();
 		}
 		catch (HttpResponseException ex)
